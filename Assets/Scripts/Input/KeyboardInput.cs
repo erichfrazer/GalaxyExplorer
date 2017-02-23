@@ -4,7 +4,7 @@ using HoloToolkit.Unity;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KeyboardInput : Singleton<KeyboardInput>
+public class KeyboardInput : GalaxyExplorer.HoloToolkit.Unity.Singleton<KeyboardInput>
 {
     // Different events for keys
     public enum KeyEvent

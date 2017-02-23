@@ -4,7 +4,7 @@ using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.Audio;
 
-public class MusicManager : Singleton<MusicManager>
+public class MusicManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<MusicManager>
 {
     public AudioMixer mixer;
 

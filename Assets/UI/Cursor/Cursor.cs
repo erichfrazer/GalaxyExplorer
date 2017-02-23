@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Cursor : Singleton<Cursor>
+public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
 {
     public enum CursorCollisionSearch
     {
@@ -54,10 +54,8 @@ public class Cursor : Singleton<Cursor>
 
     private Dictionary<CursorState, CursorStageImage> stateImagesRepository;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-
         // The cursor is hidden by default. It will get shown when we load the main scene
         visible = false;
 
@@ -411,9 +409,8 @@ public class Cursor : Singleton<Cursor>
         ApplyCursorState(CursorState.Default);
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
         cursorMaterial.SetFloat("_Alpha", originalAlpha);
-        base.OnDestroy();
     }
 }

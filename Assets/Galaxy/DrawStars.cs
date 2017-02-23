@@ -44,7 +44,7 @@ public class RenderProxy : MonoBehaviour
 #endif
 }
 
-public class RenderTexturesBucket : Singleton<RenderTexturesBucket>
+public class RenderTexturesBucket : GalaxyExplorer.HoloToolkit.Unity.Singleton<RenderTexturesBucket>
 {
     public RenderTexture downRez;
     public RenderTexture downRezMed;

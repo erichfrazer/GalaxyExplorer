@@ -5,7 +5,7 @@ using HoloToolkit.Unity;
 using System.Linq;
 using UnityEngine;
 
-public class TrueScaleSetting : Singleton<TrueScaleSetting>
+public class TrueScaleSetting : GalaxyExplorer.HoloToolkit.Unity.Singleton<TrueScaleSetting>
 {
     [Range(0, 1)]
     public float CurrentRealismScale = 0;
@@ -28,7 +28,7 @@ public class TrueScaleSetting : Singleton<TrueScaleSetting>
     private Transform sun;
     private float originalSunScale;
 
-    protected override void Awake()
+    private void Awake()
     {
         originalTransitionAlpha = AsteroidMaterial.GetFloat("_TransitionAlpha");
         originalRealismScale = OrbitsMaterial.GetFloat("_Truthfulness");
@@ -94,7 +94,7 @@ public class TrueScaleSetting : Singleton<TrueScaleSetting>
             }
         }
     }
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
         if (AsteroidMaterial)
         {
@@ -104,6 +104,5 @@ public class TrueScaleSetting : Singleton<TrueScaleSetting>
         {
             OrbitsMaterial.SetFloat("_Truthfulness", originalRealismScale);
         }
-        base.OnDestroy();
     }
 }

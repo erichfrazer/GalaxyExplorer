@@ -8,13 +8,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainScene.unity
   - enabled: 1
-    path: Assets/Scenes/Views/GalaxyView.unity
+    path: Assets/Scenes/CoreSystems.unity
+  - enabled: 1
+    path: Assets/Scenes/Views/SpectatorView.unity
+  - enabled: 1
+    path: Assets/Scenes/Views/EarthView.unity
   - enabled: 1
     path: Assets/Scenes/Views/SolarSystemView.unity
   - enabled: 1
-    path: Assets/Scenes/CoreSystems.unity
-  - enabled: 1
-    path: Assets/Scenes/Views/EarthView.unity
+    path: Assets/Scenes/Views/GalaxyView.unity
   - enabled: 1
     path: Assets/Scenes/Views/SunView.unity
   - enabled: 1
@@ -41,5 +43,3 @@ EditorBuildSettings:
     path: Assets/Scenes/Views/S102View.unity
   - enabled: 1
     path: Assets/Scenes/Views/SagAStarView.unity
-  - enabled: 1
-    path: Assets/Scenes/SpectatorView.unity

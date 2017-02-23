@@ -4,7 +4,7 @@ using HoloToolkit.Unity;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GazeSelectionManager : Singleton<GazeSelectionManager>
+public class GazeSelectionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<GazeSelectionManager>
 {
     public GazeSelection GazeSelector;
     public bool LockSelectedTarget = false;

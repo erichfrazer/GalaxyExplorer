@@ -3,7 +3,7 @@
 using HoloToolkit.Unity;
 using UnityEngine;
 
-public class CardPOIManager : Singleton<CardPOIManager>
+public class CardPOIManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<CardPOIManager>
 {
     [Header("Galaxy Card POI Fading")]
     [Tooltip("The time it takes for all points of interest to completely fade out when a card point of interest is selected.")]
@@ -41,13 +41,12 @@ public class CardPOIManager : Singleton<CardPOIManager>
         InputRouter.Instance.InputTapped += InputTapped;
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
         if (InputRouter.Instance != null)
         {
             InputRouter.Instance.InputTapped -= InputTapped;
         }
-        base.OnDestroy();
     }
 
     private void InputTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind arg1, int tapCount, Ray arg2)

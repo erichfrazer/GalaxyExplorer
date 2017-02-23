@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Windows.Speech;
 
-public sealed class PlayerInputManager : Singleton<PlayerInputManager>, ISpeechInputManager
+public sealed class PlayerInputManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<PlayerInputManager>, ISpeechInputManager
 {
     public event Action TapPressAction;
 
@@ -16,9 +16,8 @@ public sealed class PlayerInputManager : Singleton<PlayerInputManager>, ISpeechI
     private Dictionary<string, List<SpeechCallback>> speechCallbacks;
     private KeywordRecognizer keywordRecognizer = null;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         speechCallbacks = new Dictionary<string, List<SpeechCallback>>();
     }
 

@@ -3,7 +3,7 @@
 using HoloToolkit.Unity;
 using UnityEngine;
 
-public class ToolSounds : Singleton<ToolSounds>
+public class ToolSounds : GalaxyExplorer.HoloToolkit.Unity.Singleton<ToolSounds>
 {
     public string HighlightEvent;
     public AudioClip RemoveHighlightClip;

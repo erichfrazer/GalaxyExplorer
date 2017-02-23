@@ -4,7 +4,7 @@ using System.Collections;
 using HoloToolkit.Unity;
 using UnityEngine;
 
-public class ToolManager : Singleton<ToolManager>
+public class ToolManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<ToolManager>
 {
     public Tool SelectedTool = null;
     public GameObject BackButton;
@@ -29,10 +29,8 @@ public class ToolManager : Singleton<ToolManager>
         get { return smallestZoom; }
     }
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-
         if (TransitionManager.Instance == null)
         {
             Debug.LogWarning("ToolManager: No TransitionManager was found, so the zoom tool will not properly size content - transition manager is needed to identify when new content has loaded.");
@@ -74,13 +72,12 @@ public class ToolManager : Singleton<ToolManager>
         toolSounds.gameObject.SetActive(false);
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
         if (TransitionManager.Instance)
         {
             TransitionManager.Instance.ContentLoaded -= ViewContentLoaded;
         }
-        base.OnDestroy();
     }
 
     private void ViewContentLoaded()

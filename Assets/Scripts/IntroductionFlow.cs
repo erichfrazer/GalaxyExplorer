@@ -5,7 +5,7 @@ using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
 
-public class IntroductionFlow : Singleton<IntroductionFlow>
+public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<IntroductionFlow>
 {
     public GameObject Logo;
     public float IntroSlateTime = 1.0f;
@@ -62,9 +62,8 @@ public class IntroductionFlow : Singleton<IntroductionFlow>
     private float timeInState = 0.0f;
     private bool coreSystemsLoaded = false;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
 #if !UNITY_EDITOR
         // Skip placing the earth if we aren't in a VR device.
         // We do this check in a !UNITY_EDITOR block to allow for testing
@@ -99,7 +98,7 @@ public class IntroductionFlow : Singleton<IntroductionFlow>
         }
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
         if (coreSystemsLoaded)
         {
@@ -112,7 +111,6 @@ public class IntroductionFlow : Singleton<IntroductionFlow>
         {
             ViewLoader.Instance.CoreSystemsLoaded -= CoreSystemsLoaded;
         }
-        base.OnDestroy();
     }
 
     private void Update()

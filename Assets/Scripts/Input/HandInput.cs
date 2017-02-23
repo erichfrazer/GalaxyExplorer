@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
 
-public class HandInput : Singleton<HandInput>
+public class HandInput : GalaxyExplorer.HoloToolkit.Unity.Singleton<HandInput>
 {
     public struct HandState
     {
@@ -56,10 +56,8 @@ public class HandInput : Singleton<HandInput>
 
     public event System.Action<bool> HandInFOVChanged;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-
         // Start out with a clean state by resetting both hand structures.
         for (int i = 0; i < handStates.Length; ++i)
         {
@@ -105,7 +103,7 @@ public class HandInput : Singleton<HandInput>
         TryToRegisterEvents();
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
         TryToUnregisterEvents();
 
@@ -114,7 +112,6 @@ public class HandInput : Singleton<HandInput>
         {
             UnregisterHandByIndex(i);
         }
-        base.OnDestroy();
     }
 
     private void OnEnable()

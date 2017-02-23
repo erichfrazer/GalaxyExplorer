@@ -845,7 +845,7 @@ MonoBehaviour:
   IntroLogoTime: 4.5
   MinTimeInForDialog: 2
   DialogExitTime: 1
-  SkipPlaceEarth: 1
+  SkipPlaceEarth: 0
   SecondsToFadeOutEarth: 1.5
   SecondsOnEarth: 2
   SecondsOnSolarSystem: 5

@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 
 public delegate void SceneLoaded(GameObject content, string oldSceneName);
 
-public class ViewLoader : Singleton<ViewLoader>
+public class ViewLoader : GalaxyExplorer.HoloToolkit.Unity.Singleton<ViewLoader>
 {
     public static float AudioFadeoutTime = 1.0f;
 
@@ -54,11 +54,12 @@ public class ViewLoader : Singleton<ViewLoader>
     private const string IntroState = "Base Layer.Intro";
     private const string OutroState = "Base Layer.Outro";
 
-    protected override void Awake()
+    protected void Awake()
     {
-        if (!IsInitialized)
+        if (ViewLoader.Instance != this)
         {
-            base.Awake();
+            DestroyObject(gameObject);
+            return;
         }
 
         transitionAudioSource = Instance.gameObject.GetComponent<AudioSource>();

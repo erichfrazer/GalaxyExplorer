@@ -5,7 +5,7 @@ using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.VR.WSA;
 
-public class LSRPlaneModifier : Singleton<LSRPlaneModifier>
+public class LSRPlaneModifier : GalaxyExplorer.HoloToolkit.Unity.Singleton<LSRPlaneModifier>
 {
     public LayerMask TargetCollisionLayers;
     public LayerMask FallbackCollisionLayers;

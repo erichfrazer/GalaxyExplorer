@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class VOManager : Singleton<VOManager>
+public class VOManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<VOManager>
 {
     [Serializable]
     public class QueuedAudioClip

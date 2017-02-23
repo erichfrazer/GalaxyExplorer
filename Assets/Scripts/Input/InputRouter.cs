@@ -19,7 +19,7 @@ public interface IInputHandler
     bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray);
 }
 
-public class InputRouter : Singleton<InputRouter>
+public class InputRouter : GalaxyExplorer.HoloToolkit.Unity.Singleton<InputRouter>
 {
     public Vector3 fakeInput;
     public bool enableFakeInput = false;
@@ -95,9 +95,8 @@ public class InputRouter : Singleton<InputRouter>
         }
     }
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         PressedSources = new HashSet<InteractionSourceKind>();
     }
 
@@ -157,7 +156,7 @@ public class InputRouter : Singleton<InputRouter>
         }
     }
 
-    protected override void OnDestroy()
+    private void OnDestroy()
     {
         if (gestureRecognizer != null)
         {
@@ -171,8 +170,6 @@ public class InputRouter : Singleton<InputRouter>
             KeyboardInput.Instance.UnregisterKeyEvent(new KeyboardInput.KeyCodeEventPair(KeyCode.Space, KeyboardInput.KeyEvent.KeyReleased), FakeTapKeyboardHandler);
             KeyboardInput.Instance.UnregisterKeyEvent(new KeyboardInput.KeyCodeEventPair(KeyCode.Backspace, KeyboardInput.KeyEvent.KeyReleased), FakeBackKeyboardHandler);
         }
-
-        base.OnDestroy();
     }
 
     #region EventCallbacks

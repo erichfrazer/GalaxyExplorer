@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class TransitionManager : Singleton<TransitionManager>
+public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<TransitionManager>
 {
     public enum FadeType
     {

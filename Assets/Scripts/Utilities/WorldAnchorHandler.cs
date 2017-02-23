@@ -4,7 +4,7 @@ using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.VR.WSA;
 
-public class WorldAnchorHandler : Singleton<WorldAnchorHandler>
+public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<WorldAnchorHandler>
 {
     private WorldAnchor viewLoaderAnchor;
     private bool viewLoaderAnchorActivelyTracking = true;

@@ -9,7 +9,7 @@ using UnityEngine;
 
 public class OrbitalTrail : MonoBehaviour
 {
-    public class OrbitsRenderer : Singleton<OrbitsRenderer>
+    public class OrbitsRenderer : GalaxyExplorer.HoloToolkit.Unity.Singleton<OrbitsRenderer>
     {
         public class OrbitsRendererCameraProxy : MonoBehaviour
         {
@@ -141,10 +141,9 @@ public class OrbitalTrail : MonoBehaviour
             }
         }
 
-        protected override void OnDestroy()
+        private void OnDestroy()
         {
             DestroyBuffers();
-            base.OnDestroy();
         }
 
         private void DestroyBuffers()
