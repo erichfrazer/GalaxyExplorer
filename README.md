@@ -32,10 +32,13 @@ Note that by default when you point Unity at this repo, it will open a new scene
 
 From Unity, choose File->Build Settings to bring up the Build Settings
 window. All of the scenes in the Scenes to Build section should be checked.
-Choose Windows Store as the Platform. On the right side, choose Universal 10
-as the SDK, "any device" as the Target device, XAML as the UWP Build Type,
-check "Copy References", check "Unity C# Projects" and then click Build.
-Select the folder called 'UWP' and choose this folder.
+Choose Windows Store as the Platform. On the right side:
+* choose "Universal 10" as the SDK, 
+* choose "Any device" as the Target device, 
+* choose "XAML" as the UWP Build Type,
+* ignore the "Build and Run on" field,
+* check "Unity C# Projects".
+Click Build, select the folder called 'UWP' and click Choose this Folder.
 
 After the build completes successfully, an explorer window will pop up.
 Navigate into the UWP folder and double-click GalaxyExplorer.sln to launch

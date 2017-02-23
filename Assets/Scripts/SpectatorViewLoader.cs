@@ -6,6 +6,7 @@ using HoloToolkit.Unity;
 public class SpectatorViewLoader : Singleton<SpectatorViewLoader>
 {
     private string SpectatorView = "SpectatorView";
+    [HideInInspector]
     public bool SpectatorViewLoaded = false;
 
     protected override void Awake()
