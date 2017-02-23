@@ -54,17 +54,15 @@ public class ViewLoader : Singleton<ViewLoader>
     private const string IntroState = "Base Layer.Intro";
     private const string OutroState = "Base Layer.Outro";
 
-    protected void Awake()
+    protected override void Awake()
     {
-        if (ViewLoader.Instance != this)
+        if (!IsInitialized)
         {
-            DestroyObject(gameObject);
-            return;
+            base.Awake();
         }
 
-        transitionAudioSource = GetComponent<AudioSource>();
+        transitionAudioSource = Instance.gameObject.GetComponent<AudioSource>();
     }
-
     private IEnumerator Start()
     {
         // Setting orientation to landscape for platforms that respect
@@ -176,6 +174,17 @@ public class ViewLoader : Singleton<ViewLoader>
             {
                 yield return new WaitForEndOfFrame();
             }
+            coreSystems = GameObject.Find(CoreSystems);
+        }
+
+        if (!Instance.coreSystemsLoaded && SpectatorViewLoader.Instance && SpectatorViewLoader.Instance.gameObject.activeSelf)
+        {
+            Debug.Log("Waiting for Spectator view to finish loading...");
+            while (!SpectatorViewLoader.Instance.SpectatorViewLoaded)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+            Debug.Log("...Spectator view loaded.");
         }
 
         if (!coreSystemsLoaded)

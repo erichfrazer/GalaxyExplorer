@@ -141,9 +141,10 @@ public class OrbitalTrail : MonoBehaviour
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
             DestroyBuffers();
+            base.OnDestroy();
         }
 
         private void DestroyBuffers()

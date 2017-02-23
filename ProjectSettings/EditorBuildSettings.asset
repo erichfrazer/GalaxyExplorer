@@ -41,3 +41,5 @@ EditorBuildSettings:
     path: Assets/Scenes/Views/S102View.unity
   - enabled: 1
     path: Assets/Scenes/Views/SagAStarView.unity
+  - enabled: 1
+    path: Assets/Scenes/SpectatorView.unity

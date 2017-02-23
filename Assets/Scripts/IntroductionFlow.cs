@@ -62,8 +62,9 @@ public class IntroductionFlow : Singleton<IntroductionFlow>
     private float timeInState = 0.0f;
     private bool coreSystemsLoaded = false;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
 #if !UNITY_EDITOR
         // Skip placing the earth if we aren't in a VR device.
         // We do this check in a !UNITY_EDITOR block to allow for testing
@@ -98,7 +99,7 @@ public class IntroductionFlow : Singleton<IntroductionFlow>
         }
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         if (coreSystemsLoaded)
         {
@@ -111,6 +112,7 @@ public class IntroductionFlow : Singleton<IntroductionFlow>
         {
             ViewLoader.Instance.CoreSystemsLoaded -= CoreSystemsLoaded;
         }
+        base.OnDestroy();
     }
 
     private void Update()

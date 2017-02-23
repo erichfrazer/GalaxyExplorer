@@ -28,7 +28,7 @@ public class TrueScaleSetting : Singleton<TrueScaleSetting>
     private Transform sun;
     private float originalSunScale;
 
-    private void Awake()
+    protected override void Awake()
     {
         originalTransitionAlpha = AsteroidMaterial.GetFloat("_TransitionAlpha");
         originalRealismScale = OrbitsMaterial.GetFloat("_Truthfulness");
@@ -94,7 +94,7 @@ public class TrueScaleSetting : Singleton<TrueScaleSetting>
             }
         }
     }
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         if (AsteroidMaterial)
         {
@@ -104,5 +104,6 @@ public class TrueScaleSetting : Singleton<TrueScaleSetting>
         {
             OrbitsMaterial.SetFloat("_Truthfulness", originalRealismScale);
         }
+        base.OnDestroy();
     }
 }

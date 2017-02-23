@@ -29,8 +29,10 @@ public class ToolManager : Singleton<ToolManager>
         get { return smallestZoom; }
     }
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         if (TransitionManager.Instance == null)
         {
             Debug.LogWarning("ToolManager: No TransitionManager was found, so the zoom tool will not properly size content - transition manager is needed to identify when new content has loaded.");
@@ -72,12 +74,13 @@ public class ToolManager : Singleton<ToolManager>
         toolSounds.gameObject.SetActive(false);
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         if (TransitionManager.Instance)
         {
             TransitionManager.Instance.ContentLoaded -= ViewContentLoaded;
         }
+        base.OnDestroy();
     }
 
     private void ViewContentLoaded()

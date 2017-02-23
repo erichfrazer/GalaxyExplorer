@@ -41,12 +41,13 @@ public class CardPOIManager : Singleton<CardPOIManager>
         InputRouter.Instance.InputTapped += InputTapped;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         if (InputRouter.Instance != null)
         {
             InputRouter.Instance.InputTapped -= InputTapped;
         }
+        base.OnDestroy();
     }
 
     private void InputTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind arg1, int tapCount, Ray arg2)

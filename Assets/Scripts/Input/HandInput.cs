@@ -56,8 +56,10 @@ public class HandInput : Singleton<HandInput>
 
     public event System.Action<bool> HandInFOVChanged;
 
-    protected void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         // Start out with a clean state by resetting both hand structures.
         for (int i = 0; i < handStates.Length; ++i)
         {
@@ -103,7 +105,7 @@ public class HandInput : Singleton<HandInput>
         TryToRegisterEvents();
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         TryToUnregisterEvents();
 
@@ -112,6 +114,7 @@ public class HandInput : Singleton<HandInput>
         {
             UnregisterHandByIndex(i);
         }
+        base.OnDestroy();
     }
 
     private void OnEnable()

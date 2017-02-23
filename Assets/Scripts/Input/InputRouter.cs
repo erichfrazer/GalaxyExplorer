@@ -95,8 +95,9 @@ public class InputRouter : Singleton<InputRouter>
         }
     }
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         PressedSources = new HashSet<InteractionSourceKind>();
     }
 
@@ -156,7 +157,7 @@ public class InputRouter : Singleton<InputRouter>
         }
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         if (gestureRecognizer != null)
         {
@@ -170,6 +171,8 @@ public class InputRouter : Singleton<InputRouter>
             KeyboardInput.Instance.UnregisterKeyEvent(new KeyboardInput.KeyCodeEventPair(KeyCode.Space, KeyboardInput.KeyEvent.KeyReleased), FakeTapKeyboardHandler);
             KeyboardInput.Instance.UnregisterKeyEvent(new KeyboardInput.KeyCodeEventPair(KeyCode.Backspace, KeyboardInput.KeyEvent.KeyReleased), FakeBackKeyboardHandler);
         }
+
+        base.OnDestroy();
     }
 
     #region EventCallbacks

@@ -462,6 +462,7 @@ public class TransitionManager : Singleton<TransitionManager>
         }
 
         preLoadedContent = content;
+        Debug.Log(String.Format("Unloading scene {0}", ViewLoader.Instance.CurrentView));
         SceneManager.UnloadSceneAsync(ViewLoader.Instance.CurrentView);
 
         inTransition = false;

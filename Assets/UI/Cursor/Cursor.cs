@@ -54,8 +54,10 @@ public class Cursor : Singleton<Cursor>
 
     private Dictionary<CursorState, CursorStageImage> stateImagesRepository;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         // The cursor is hidden by default. It will get shown when we load the main scene
         visible = false;
 
@@ -409,8 +411,9 @@ public class Cursor : Singleton<Cursor>
         ApplyCursorState(CursorState.Default);
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
         cursorMaterial.SetFloat("_Alpha", originalAlpha);
+        base.OnDestroy();
     }
 }

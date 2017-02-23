@@ -16,8 +16,9 @@ public sealed class PlayerInputManager : Singleton<PlayerInputManager>, ISpeechI
     private Dictionary<string, List<SpeechCallback>> speechCallbacks;
     private KeywordRecognizer keywordRecognizer = null;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         speechCallbacks = new Dictionary<string, List<SpeechCallback>>();
     }
 
