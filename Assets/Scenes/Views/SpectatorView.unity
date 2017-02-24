@@ -130,6 +130,25 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
+        type: 2}
+      propertyPath: ClientHololensCSV
+      value: 10.89.161.228
+      objectReference: {fileID: 0}
+    - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
+        type: 2}
+      propertyPath: SharingServiceIP
+      value: 10.124.205.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
+        type: 2}
+      propertyPath: LocalComputerIP
+      value: 10.124.205.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 1012395230765410, guid: 1a5c3b12e0673024bb9beea1e7b5b616, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1a5c3b12e0673024bb9beea1e7b5b616, type: 2}
   m_IsPrefabParent: 0

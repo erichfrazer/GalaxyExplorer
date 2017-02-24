@@ -41,6 +41,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
     public enum IntroductionState
     {
+        IntroductionStateWaitForSpectatorViewParticipants,
         IntroductionStateAppDescription,
         IntroductionStateDevelopers,
         IntroductionStateCommunity,
@@ -115,8 +116,21 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
     private void Update()
     {
+        if (!coreSystemsLoaded)
+        {
+            return;
+        }
+
         switch (currentState)
         {
+            // If we are using Spectator View, wait until we have everyone ready
+            case IntroductionState.IntroductionStateWaitForSpectatorViewParticipants:
+                if (SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady)
+                {
+                    StartIntroductionVO();
+                }
+                break;
+
             case IntroductionState.IntroductionStateAppDescription:
             case IntroductionState.IntroductionStateDevelopers:
             case IntroductionState.IntroductionStateCommunity:
@@ -242,6 +256,22 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
         placementControl = TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>();
 
+        // If we are using Spectator View, set the application's state to force us to wait
+        // until the SpectatorView participants are ready.
+        if (SpectatorViewSharingConnector.Instance.SpectatorViewEnabled)
+        {
+            Debug.Log("Waiting for all Spectator View participants...");
+            currentState = IntroductionState.IntroductionStateWaitForSpectatorViewParticipants;
+        }
+        else
+        {
+            StartIntroductionVO();
+        }
+    }
+
+    private void StartIntroductionVO()
+    {
+        currentState = IntroductionState.IntroductionStateAppDescription;
         MusicManager.Instance.FindSnapshotAndTransition(MusicManager.Instance.Welcome);
         VOManager.Instance.Stop(clearQueue: true);
         VOManager.Instance.PlayClip(Title);
@@ -366,6 +396,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
         switch (currentState)
         {
             case IntroductionState.IntroductionStateAppDescription:
+                timeInState = 0f;
                 InstructionSlate.gameObject.SetActive(true);
 
                 // position the slate in front of the user
