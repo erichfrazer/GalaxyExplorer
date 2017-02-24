@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5d0126b7288155e4ab71061586b5505c
+guid: 78999da1a7a3963408a781f4c1fc70cc
 timeCreated: 1486082660
 licenseType: Pro
 PluginImporter:
@@ -12,7 +12,7 @@ PluginImporter:
     Any:
       enabled: 0
       settings:
-        Exclude Editor: 1
+        Exclude Editor: 0
         Exclude Linux: 1
         Exclude Linux64: 1
         Exclude LinuxUniversal: 1
@@ -21,17 +21,17 @@ PluginImporter:
         Exclude OSXUniversal: 1
         Exclude Win: 1
         Exclude Win64: 1
-        Exclude WindowsStoreApps: 0
+        Exclude WindowsStoreApps: 1
     Editor:
-      enabled: 0
+      enabled: 1
       settings:
-        CPU: AnyCPU
+        CPU: x86_64
         DefaultValueInitialized: true
         OS: AnyOS
     Linux:
       enabled: 0
       settings:
-        CPU: x86
+        CPU: None
     Linux64:
       enabled: 0
       settings:
@@ -43,7 +43,7 @@ PluginImporter:
     OSXIntel:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
     OSXIntel64:
       enabled: 0
       settings:
@@ -55,15 +55,15 @@ PluginImporter:
     Win:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
     Win64:
       enabled: 0
       settings:
         CPU: AnyCPU
     WindowsStoreApps:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: X86
+        CPU: AnyCPU
         DontProcess: False
         PlaceholderPath: 
         SDK: AnySDK
