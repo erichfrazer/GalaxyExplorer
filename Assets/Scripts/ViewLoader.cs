@@ -185,6 +185,14 @@ public class ViewLoader : GalaxyExplorer.HoloToolkit.Unity.Singleton<ViewLoader>
             {
                 yield return new WaitForEndOfFrame();
             }
+
+            // Parent UI elements in CoreSystems to the SpectatorView's anchor object
+            var svAnchorInst = SpectatorView.SV_ImportExportAnchorManager.Instance;
+            if (svAnchorInst != null)
+            {
+                IntroductionFlow.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
+                ToolManager.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
+            }
             Debug.Log("...Spectator view loaded.");
         }
 

@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class AboutSlate : MonoBehaviour
+public class AboutSlate : GalaxyExplorer.HoloToolkit.Unity.Singleton<AboutSlate>
 {
     public Material AboutMaterial;
     public GameObject Slate;
@@ -25,6 +25,16 @@ public class AboutSlate : MonoBehaviour
                 Hide();
             }
         };
+
+        // The AboutSlate gameObject starts out disabled so its resources
+        // aren't consumed until needed. If this is the first time showing
+        // the about slate and we are using Spectator View, we need to attach
+        // ourselves to SpectatorView's anchor.
+        if (SpectatorViewSharingConnector.Instance.SpectatorViewEnabled)
+        {
+            Instance.gameObject.transform.parent = 
+                SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;
+        }
     }
 
     private IEnumerator AnimateToOpacity(float target)
