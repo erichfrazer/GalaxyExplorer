@@ -278,7 +278,7 @@ public class ViewLoader : GalaxyExplorer.HoloToolkit.Unity.Singleton<ViewLoader>
 
             // If we are using Spectator View, we need to parent the content of
             // this scene to the Anchor object of the Spectator View Manager
-            if (SpectatorViewSharingConnector.Instance.SpectatorViewEnabled &&
+            if (GalaxyExplorer.SpectatorViewSharingConnector.Instance.SpectatorViewEnabled &&
                 SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject != null)
             {
                 newContent.transform.parent = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;

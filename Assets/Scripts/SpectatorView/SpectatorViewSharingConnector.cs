@@ -52,7 +52,7 @@ namespace GalaxyExplorer
                 (SpectatorView.HolographicCameraManager.Instance.IsHolographicCameraRig()))
             {
                 Debug.Log("We are the Holographic Camera; waiting until active");
-                while (!SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive)
+                //while (!SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive)
                 {
                     yield return new WaitForEndOfFrame();
                 }
@@ -61,10 +61,10 @@ namespace GalaxyExplorer
                 var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
                 while (true)
                 {
-                    if (SharingSessionTracker.Instance.UserIds.Count >= 3)
+                    if (SharingSessionTracker.Instance.UserIds.Count >= 2)
                     {
-                        if ((hcmInstance.tppcUser != null) &&
-                            (hcmInstance.editorUser != null))
+                        //if ((hcmInstance.tppcUser != null) &&
+                        //    (hcmInstance.editorUser != null))
                         {
                             Debug.Log("### have all SV participants ###");
                             break;

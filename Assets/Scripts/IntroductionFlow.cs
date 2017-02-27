@@ -125,7 +125,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
         {
             // If we are using Spectator View, wait until we have everyone ready
             case IntroductionState.IntroductionStateWaitForSpectatorViewParticipants:
-                if (SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady)
+                if (GalaxyExplorer.SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady)
                 {
                     StartIntroductionVO();
                 }
@@ -258,7 +258,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
         // If we are using Spectator View, set the application's state to force us to wait
         // until the SpectatorView participants are ready.
-        if (SpectatorViewSharingConnector.Instance.SpectatorViewEnabled)
+        if (GalaxyExplorer.SpectatorViewSharingConnector.Instance.SpectatorViewEnabled)
         {
             Debug.Log("Waiting for all Spectator View participants...");
             currentState = IntroductionState.IntroductionStateWaitForSpectatorViewParticipants;

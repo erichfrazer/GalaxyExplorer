@@ -32,6 +32,10 @@ namespace GalaxyExplorer
 
         private IEnumerator Start()
         {
+            while (!SpectatorView.SV_CustomMessages.Instance)
+            {
+                yield return new WaitForEndOfFrame();
+            }
             while (!SpectatorView.SV_CustomMessages.Instance.Initialized)
             {
                 yield return new WaitForEndOfFrame();
@@ -78,7 +82,10 @@ namespace GalaxyExplorer
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            connectionAdapter.MessageReceivedCallback -= ConnectionAdapter_OnMessageReceived;
+            if (connectionAdapter != null)
+            {
+                connectionAdapter.MessageReceivedCallback -= ConnectionAdapter_OnMessageReceived;
+            }
         }
 
         private void ConnectionAdapter_OnMessageReceived(NetworkConnection connection, NetworkInMessage msg)
