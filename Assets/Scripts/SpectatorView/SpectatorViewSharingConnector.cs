@@ -2,81 +2,92 @@
 using UnityEngine;
 using HoloToolkit.Unity;
 using HoloToolkit.Sharing;
+using GalaxyExplorer._SpectatorView;
 
-public enum SpectatorViewParticipant
+namespace GalaxyExplorer
 {
-    UnityClient,
-    SpectatorViewRig,
-    ClientHoloLens
-}
-
-public class SpectatorViewSharingConnector : Singleton<SpectatorViewSharingConnector>
-{
-    private string myIP = string.Empty;
-    [HideInInspector]
-    public bool SpectatorViewEnabled = false;
-    //[HideInInspector]
-    public bool SpectatorViewParticipantsReady = false;
-
-    // Use this for initialization
-    private IEnumerator Start()
+    public enum SpectatorViewParticipant
     {
-        SpectatorViewEnabled = true;
-        //myIP = UnityEngine.Networking.NetworkManager.singleton.networkAddress;
-
-        // wait until the SpectatorView Components are loaded before
-        // exiting start.
-        while (!SpectatorViewLoader.Instance.SpectatorViewLoaded)
-        {
-            yield return new WaitForEndOfFrame();
-        }
-
-        StartCoroutine(WaitForSpectatorViewParticipantsAsync());
+        UnityClient,
+        SpectatorViewRig,
+        ClientHoloLens
     }
 
-    private IEnumerator WaitForSpectatorViewParticipantsAsync()
+    public class SpectatorViewSharingConnector : Singleton<SpectatorViewSharingConnector>
     {
-        // we only do this waiting if we are the SpectatorView camera rig
-        if (SpectatorView.HolographicCameraManager.Instance != null)
+        private string myIP = string.Empty;
+        [HideInInspector]
+        public bool SpectatorViewEnabled = false;
+        //[HideInInspector]
+        public bool SpectatorViewParticipantsReady = false;
+
+        protected override void Awake()
         {
-            Debug.Log("We are the Holographic Camera; waiting until active");
-            while (!SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive)
+            base.Awake();
+            if (!GetComponent<SpectatorView_GE_CustomMessages>())
+            {
+                gameObject.AddComponent<SpectatorView_GE_CustomMessages>();
+            }
+        }
+
+        // Use this for initialization
+        private IEnumerator Start()
+        {
+            SpectatorViewEnabled = true;
+
+            // wait until the SpectatorView Components are loaded before
+            // exiting start.
+            while (!SpectatorViewLoader.Instance.SpectatorViewLoaded)
             {
                 yield return new WaitForEndOfFrame();
             }
+
+            StartCoroutine(WaitForSpectatorViewParticipantsAsync());
         }
 
-        var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
-        while (true)
+        private IEnumerator WaitForSpectatorViewParticipantsAsync()
         {
-            if (SharingSessionTracker.Instance.UserIds.Count >= 3)
+            // we only do this waiting if we are the SpectatorView camera rig
+            if ((SpectatorView.HolographicCameraManager.Instance != null) &&
+                (SpectatorView.HolographicCameraManager.Instance.IsHolographicCameraRig()))
             {
-                if ((hcmInstance.tppcUser != null) &&
-                    (hcmInstance.editorUser != null))
+                Debug.Log("We are the Holographic Camera; waiting until active");
+                while (!SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive)
                 {
-                    Debug.Log("### have all SV participants ###");
-                    break;
+                    yield return new WaitForEndOfFrame();
                 }
+
+                Debug.Log("Holographic Camera is active ");
+                var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
+                while (true)
+                {
+                    if (SharingSessionTracker.Instance.UserIds.Count >= 3)
+                    {
+                        if ((hcmInstance.tppcUser != null) &&
+                            (hcmInstance.editorUser != null))
+                        {
+                            Debug.Log("### have all SV participants ###");
+                            break;
+                        }
+                    }
+                    Debug.Log(string.Format("  TPPC User: {0}", (hcmInstance.tppcUser == null) ? "NULL" : hcmInstance.tppcUser.GetName().ToString()));
+                    Debug.Log(string.Format("Editor User: {0}", (hcmInstance.editorUser == null) ? "NULL" : hcmInstance.editorUser.GetName().ToString()));
+                    yield return new WaitForEndOfFrame();
+                }
+
+                SpectatorView_GE_CustomMessages.Instance.SendSpectatorViewPlayersReady();
+                SpectatorViewParticipantsReady = true;
             }
-            Debug.Log(string.Format("  TPPC User: {0}", (hcmInstance.tppcUser == null) ? "NULL" : hcmInstance.tppcUser.GetName().ToString()));
-            Debug.Log(string.Format("Editor User: {0}", (hcmInstance.editorUser == null) ? "NULL" : hcmInstance.editorUser.GetName().ToString()));
-            yield return new WaitForEndOfFrame();
         }
-        SpectatorViewParticipantsReady = true;
     }
-
-    private SpectatorViewParticipant WhoAmI()
+}
+namespace GalaxyExplorer._SpectatorView
+{
+    public static class Extensions
     {
-        var svInstance = SpectatorView.SpectatorViewManager.Instance;
-
-        if (myIP.Equals(svInstance.SpectatorViewIP))
+        public static bool IsHolographicCameraRig(this SpectatorView.HolographicCameraManager hcm)
         {
-            return SpectatorViewParticipant.SpectatorViewRig;
+            return hcm.localIPs.Contains(hcm.HolographicCameraIP.Trim());
         }
-#if UNITY_EDITOR
-        return SpectatorViewParticipant.UnityClient;
-#else
-        return SpectatorViewParticipant.ClientHoloLens;
-#endif
     }
 }
