@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using HoloToolkit.Unity;
+using HoloToolkit.Sharing;
 
 public enum SpectatorViewParticipant
 {
@@ -28,6 +29,34 @@ public class SpectatorViewSharingConnector : Singleton<SpectatorViewSharingConne
         while (!SpectatorViewLoader.Instance.SpectatorViewLoaded)
         {
             yield return new WaitForEndOfFrame();
+        }
+
+        StartCoroutine(WaitForSpectatorViewParticipantsAsync());
+    }
+
+    private IEnumerator WaitForSpectatorViewParticipantsAsync()
+    {
+        // we only do this waiting if we are the SpectatorView camera rig
+        if ((SpectatorView.HolographicCameraManager.Instance != null) &&
+            (SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive))
+        {
+            var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
+            while (true)
+            {
+                if (SharingSessionTracker.Instance.UserIds.Count >= 3)
+                {
+                    if ((hcmInstance.tppcUser != null) &&
+                        (hcmInstance.editorUser != null))
+                    {
+                        Debug.Log("### have all SV participants ###");
+                        break;
+                    }
+                }
+                Debug.Log(string.Format("  TPPC User: {0}", (hcmInstance.tppcUser == null) ? "NULL" : hcmInstance.tppcUser.GetName().ToString()));
+                Debug.Log(string.Format("Editor User: {0}", (hcmInstance.editorUser == null) ? "NULL" : hcmInstance.editorUser.GetName().ToString()));
+                yield return new WaitForEndOfFrame();
+            }
+            SpectatorViewParticipantsReady = true;
         }
     }
 
