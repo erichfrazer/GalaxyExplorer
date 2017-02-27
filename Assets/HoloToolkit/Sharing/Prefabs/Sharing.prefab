@@ -65,7 +65,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ClientRole: 0
-  ServerAddress: 10.124.205.55
+  ServerAddress: 10.124.133.29
   ServerPort: 20602
   IsAudioEndpoint: 0
   AutoDiscoverServer: 0

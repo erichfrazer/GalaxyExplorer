@@ -37,27 +37,32 @@ public class SpectatorViewSharingConnector : Singleton<SpectatorViewSharingConne
     private IEnumerator WaitForSpectatorViewParticipantsAsync()
     {
         // we only do this waiting if we are the SpectatorView camera rig
-        if ((SpectatorView.HolographicCameraManager.Instance != null) &&
-            (SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive))
+        if (SpectatorView.HolographicCameraManager.Instance != null)
         {
-            var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
-            while (true)
+            Debug.Log("We are the Holographic Camera; waiting until active");
+            while (!SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive)
             {
-                if (SharingSessionTracker.Instance.UserIds.Count >= 3)
-                {
-                    if ((hcmInstance.tppcUser != null) &&
-                        (hcmInstance.editorUser != null))
-                    {
-                        Debug.Log("### have all SV participants ###");
-                        break;
-                    }
-                }
-                Debug.Log(string.Format("  TPPC User: {0}", (hcmInstance.tppcUser == null) ? "NULL" : hcmInstance.tppcUser.GetName().ToString()));
-                Debug.Log(string.Format("Editor User: {0}", (hcmInstance.editorUser == null) ? "NULL" : hcmInstance.editorUser.GetName().ToString()));
                 yield return new WaitForEndOfFrame();
             }
-            SpectatorViewParticipantsReady = true;
         }
+
+        var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
+        while (true)
+        {
+            if (SharingSessionTracker.Instance.UserIds.Count >= 3)
+            {
+                if ((hcmInstance.tppcUser != null) &&
+                    (hcmInstance.editorUser != null))
+                {
+                    Debug.Log("### have all SV participants ###");
+                    break;
+                }
+            }
+            Debug.Log(string.Format("  TPPC User: {0}", (hcmInstance.tppcUser == null) ? "NULL" : hcmInstance.tppcUser.GetName().ToString()));
+            Debug.Log(string.Format("Editor User: {0}", (hcmInstance.editorUser == null) ? "NULL" : hcmInstance.editorUser.GetName().ToString()));
+            yield return new WaitForEndOfFrame();
+        }
+        SpectatorViewParticipantsReady = true;
     }
 
     private SpectatorViewParticipant WhoAmI()

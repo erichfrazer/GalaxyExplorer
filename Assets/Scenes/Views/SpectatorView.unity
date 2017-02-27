@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.3731193, g: 0.38073996, b: 0.35872692, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -133,21 +133,26 @@ Prefab:
     - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
         type: 2}
       propertyPath: ClientHololensCSV
-      value: 10.89.161.228
+      value: 10.89.160.128
       objectReference: {fileID: 0}
     - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
         type: 2}
       propertyPath: SharingServiceIP
-      value: 10.124.205.55
+      value: 10.124.133.29
       objectReference: {fileID: 0}
     - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
         type: 2}
       propertyPath: LocalComputerIP
-      value: 10.124.205.55
+      value: 10.124.133.29
       objectReference: {fileID: 0}
     - target: {fileID: 1012395230765410, guid: 1a5c3b12e0673024bb9beea1e7b5b616, type: 2}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
+        type: 2}
+      propertyPath: SpectatorViewIP
+      value: 10.89.160.125
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1a5c3b12e0673024bb9beea1e7b5b616, type: 2}
