@@ -332,6 +332,7 @@ namespace SpectatorView
             }
         }
 
+#if UNITY_EDITOR
         public void SendSpatialMappingRequest()
         {
             // If we are connected to a session, broadcast the scene info
@@ -364,6 +365,7 @@ namespace SpectatorView
                 }
             }
         }
+#endif
 
         public void SendSpatialMapping(Vector3[] vertices, Vector3[] normals, int[] triangles)
         {
@@ -402,6 +404,7 @@ namespace SpectatorView
             }
         }
 
+#if UNITY_EDITOR
         public void SendTimeOffset(int newTime)
         {
             // If we are connected to a session, broadcast the scene info
@@ -439,6 +442,7 @@ namespace SpectatorView
                 }
             }
         }
+#endif
 
         protected override void OnDestroy()
         {

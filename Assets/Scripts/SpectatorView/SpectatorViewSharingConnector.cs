@@ -2,7 +2,7 @@
 using UnityEngine;
 using HoloToolkit.Unity;
 using HoloToolkit.Sharing;
-using GalaxyExplorer._SpectatorView;
+using GalaxyExplorer.SpectatorViewExtensions;
 
 namespace GalaxyExplorer
 {
@@ -15,9 +15,7 @@ namespace GalaxyExplorer
 
     public class SpectatorViewSharingConnector : Singleton<SpectatorViewSharingConnector>
     {
-        private string myIP = string.Empty;
-        [HideInInspector]
-        public bool SpectatorViewEnabled = false;
+        public static bool SpectatorViewEnabled = false;
         //[HideInInspector]
         public bool SpectatorViewParticipantsReady = false;
 
@@ -47,43 +45,51 @@ namespace GalaxyExplorer
 
         private IEnumerator WaitForSpectatorViewParticipantsAsync()
         {
+            var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
+
             // we only do this waiting if we are the SpectatorView camera rig
-            if ((SpectatorView.HolographicCameraManager.Instance != null) &&
-                (SpectatorView.HolographicCameraManager.Instance.IsHolographicCameraRig()))
+            if ((hcmInstance != null) && hcmInstance.IsHolographicCameraRig())
             {
                 Debug.Log("We are the Holographic Camera; waiting until active");
-                //while (!SpectatorView.HolographicCameraManager.Instance.IsCurrentlyActive)
+                while (!hcmInstance.IsCurrentlyActive)
                 {
                     yield return new WaitForEndOfFrame();
                 }
 
                 Debug.Log("Holographic Camera is active ");
-                var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
                 while (true)
                 {
-                    if (SharingSessionTracker.Instance.UserIds.Count >= 2)
+                    if (SharingSessionTracker.Instance.UserIds.Count >= 3)
                     {
-                        //if ((hcmInstance.tppcUser != null) &&
-                        //    (hcmInstance.editorUser != null))
+                        if ((hcmInstance.editorUser != null))
                         {
                             Debug.Log("### have all SV participants ###");
                             break;
                         }
                     }
-                    Debug.Log(string.Format("  TPPC User: {0}", (hcmInstance.tppcUser == null) ? "NULL" : hcmInstance.tppcUser.GetName().ToString()));
                     Debug.Log(string.Format("Editor User: {0}", (hcmInstance.editorUser == null) ? "NULL" : hcmInstance.editorUser.GetName().ToString()));
-                    yield return new WaitForEndOfFrame();
+                    yield return new WaitForSeconds(1);
                 }
 
-                SpectatorView_GE_CustomMessages.Instance.SendSpectatorViewPlayersReady();
+                SendSpectatorViewPlayersReady();
                 SpectatorViewParticipantsReady = true;
             }
         }
+
+        private void SendSpectatorViewPlayersReady()
+        {
+            SpectatorView_GE_CustomMessages.Instance.SendSpectatorViewPlayersReady();
+        }
+
+        public void SendIntroductionEarthPlaced()
+        {
+
+        }
     }
 }
-namespace GalaxyExplorer._SpectatorView
+namespace GalaxyExplorer.SpectatorViewExtensions
 {
-    public static class Extensions
+    public static class HolographicCameraManager
     {
         public static bool IsHolographicCameraRig(this SpectatorView.HolographicCameraManager hcm)
         {

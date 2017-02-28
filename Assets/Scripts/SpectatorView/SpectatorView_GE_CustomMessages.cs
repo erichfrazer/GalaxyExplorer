@@ -11,6 +11,7 @@ namespace GalaxyExplorer
         public enum TestMessageID : byte
         {
             SpectatorViewPlayersReady = MessageID.UserMessageIDStart,
+            IntroductionEarthPlaced,
             Max
         }
 
@@ -57,6 +58,7 @@ namespace GalaxyExplorer
             }
 
             MessageHandlers[TestMessageID.SpectatorViewPlayersReady] = OnSpectatorViewPlayersReady;
+            MessageHandlers[TestMessageID.IntroductionEarthPlaced] = OnIntroductionEarthPlaced;
         }
 
         private NetworkOutMessage CreateMessage(byte MessageType)
@@ -73,10 +75,25 @@ namespace GalaxyExplorer
             SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady = true;
         }
 
+        private void OnIntroductionEarthPlaced(NetworkInMessage msg)
+        {
+            TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
+        }
+
+        private void SendBasicStateChangeMessage(TestMessageID messageId)
+        {
+            NetworkOutMessage msg = CreateMessage((byte)messageId);
+            serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+        }
+
         public void SendSpectatorViewPlayersReady()
         {
-            NetworkOutMessage msg = CreateMessage((byte)TestMessageID.SpectatorViewPlayersReady);
-            serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+            SendBasicStateChangeMessage(TestMessageID.SpectatorViewPlayersReady);
+        }
+
+        public void SendOnIntroductionEarthPlaced()
+        {
+            SendBasicStateChangeMessage(TestMessageID.IntroductionEarthPlaced);
         }
 
         protected override void OnDestroy()

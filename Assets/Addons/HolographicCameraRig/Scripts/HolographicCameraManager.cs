@@ -99,8 +99,10 @@ namespace SpectatorView
         [HideInInspector]
         public bool frameProviderInitialized = false;
 
+#if UNITY_EDITOR
         [HideInInspector]
         public HoloToolkit.Sharing.User tppcUser = null;
+#endif
         [HideInInspector]
         public HoloToolkit.Sharing.User editorUser = null;
 

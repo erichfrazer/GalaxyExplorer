@@ -258,7 +258,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
         // If we are using Spectator View, set the application's state to force us to wait
         // until the SpectatorView participants are ready.
-        if (GalaxyExplorer.SpectatorViewSharingConnector.Instance.SpectatorViewEnabled)
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             Debug.Log("Waiting for all Spectator View participants...");
             currentState = IntroductionState.IntroductionStateWaitForSpectatorViewParticipants;
@@ -388,6 +388,10 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
             introEarth.TransitionFromIntroToReal();
         }
 
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendIntroductionEarthPlaced();
+        }
         AdvanceIntroduction();
     }
 
