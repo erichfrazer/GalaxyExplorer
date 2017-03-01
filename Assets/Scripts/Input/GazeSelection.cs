@@ -72,6 +72,9 @@ public class GazeSelection : MonoBehaviour
             if (UnityEngine.VR.VRDevice.isPresent)
             {
                 gazeRay = new Ray(Camera.main.transform.position + (Camera.main.nearClipPlane * Camera.main.transform.forward), Camera.main.transform.forward);
+#if UNITY_EDITOR
+                gazeRay = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewGazeRay(gazeRay, Camera.main.nearClipPlane);
+#endif
             }
             else
             {

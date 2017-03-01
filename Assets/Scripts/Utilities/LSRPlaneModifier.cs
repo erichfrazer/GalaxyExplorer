@@ -31,7 +31,12 @@ public class LSRPlaneModifier : GalaxyExplorer.HoloToolkit.Unity.Singleton<LSRPl
         var camPos = cam.transform.position;
 
         var foundLsrTarget = false;
-        var raycastResults = Physics.RaycastAll(camPos, cam.transform.forward, float.MaxValue, TargetCollisionLayers);
+        Ray cameraRay;
+        cameraRay = new Ray(camPos, cam.transform.forward);
+#if UNITY_EDITOR
+        cameraRay = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewGazeRay(cameraRay, 0f);
+#endif
+        var raycastResults = Physics.RaycastAll(cameraRay, float.MaxValue, TargetCollisionLayers);
         if (raycastResults.Length > 0)
         {
             foreach (var result in raycastResults)
@@ -52,8 +57,8 @@ public class LSRPlaneModifier : GalaxyExplorer.HoloToolkit.Unity.Singleton<LSRPl
         if (!foundLsrTarget)
         {
             RaycastHit lsrHit;
-            if (Physics.Raycast(camPos, cam.transform.forward, out lsrHit, float.MaxValue, FallbackCollisionLayers))
-        {
+            if (Physics.Raycast(cameraRay, out lsrHit, float.MaxValue, FallbackCollisionLayers))
+            {
                 SetLSRPointByWorldPosition(lsrHit.point);
 #if UNITY_EDITOR
                 Debug.DrawLine(camPos, lsrHit.point);

@@ -31,7 +31,11 @@ public class OrbitPicker : GazeSelectionTarget
 
     public override void OnGazeSelect()
     {
-        Ray cameraRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        Ray cameraRay;
+        cameraRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+#if UNITY_EDITOR
+        cameraRay = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewGazeRay(cameraRay, 0f);
+#endif
         RaycastHit hitInfo;
         if (orbitMesh && orbitMesh.Raycast(cameraRay, out hitInfo, 1000.0f))
         {

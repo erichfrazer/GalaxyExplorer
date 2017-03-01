@@ -114,7 +114,5 @@ namespace GalaxyExplorer
                 messageHandler(msg);
             }
         }
-
-
     }
 }
