@@ -12,14 +12,18 @@ namespace GalaxyExplorer
     {
         public enum TestMessageID : byte
         {
+            // Spectator view messages
             SpectatorViewPlayersReady = MessageID.UserMessageIDStart,
+            // Introduction flow messages
             AdvanceIntroduction,
             IntroductionEarthPlaced,
+            // Application navigation messages
             SceneTransitionForward,
             SceneTransitionBackward,
             ToggleSolarSystemOrbitScale,
             PointOfInterestCardTapped,
             HideAllCards,
+            // Movement messages
             UpdateVolumeTransform,
             Max
         }
@@ -282,7 +286,7 @@ namespace GalaxyExplorer
             }
         }
 
-        public void SendOnVolumePositionUpdate(GameObject volume)
+        public void SendOnUpdateVolumeTransform(GameObject volume)
         {
             if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
             {

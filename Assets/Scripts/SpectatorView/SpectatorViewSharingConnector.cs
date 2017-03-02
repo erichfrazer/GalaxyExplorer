@@ -179,9 +179,9 @@ namespace GalaxyExplorer
             SpectatorView_GE_CustomMessages.Instance.SendOnHideAllCards();
         }
 
-        public void SendOnVolumePositionUpdate(GameObject volume)
+        public void SendOnUpdateVolumeTransform(GameObject volume)
         {
-            SpectatorView_GE_CustomMessages.Instance.SendOnVolumePositionUpdate(volume);
+            SpectatorView_GE_CustomMessages.Instance.SendOnUpdateVolumeTransform(volume);
         }
     }
 }

@@ -89,7 +89,7 @@ public class PlacementControl : GazeSelectionTarget
     {
         if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled && isHolding)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnVolumePositionUpdate(contentVolume);
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
         }
     }
 
@@ -111,7 +111,7 @@ public class PlacementControl : GazeSelectionTarget
         if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             // send the final position.
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnVolumePositionUpdate(contentVolume);
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
         }
 
         ToolManager.Instance.UnlockTools();
