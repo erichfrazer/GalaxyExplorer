@@ -284,6 +284,11 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
     private void OnTapped(InteractionSourceKind source, int tapCount, Ray headRay)
     {
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnAdvanceIntroduction();
+        }
+
         switch (currentState)
         {
             case IntroductionState.IntroductionStatePlaceEarth:
@@ -390,7 +395,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
         if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendIntroductionEarthPlaced();
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnIntroductionEarthPlaced();
         }
         AdvanceIntroduction();
     }

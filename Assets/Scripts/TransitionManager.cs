@@ -476,6 +476,11 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
             return;
         }
 
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnSceneTransitionBackward();
+        }
+
         inTransition = true;
         StartTransitionForNewScene(null);
 
@@ -784,6 +789,11 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
         {
             Debug.LogWarning("TransitionManager: Currently in a transition and cannot change view to '" + sceneName + "' until current transition completes.");
             return;
+        }
+
+        if (sourceObject && GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnSceneTransitionForward(sceneName, sourceObject);
         }
 
         inTransition = true;

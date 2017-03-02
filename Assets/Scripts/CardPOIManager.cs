@@ -56,6 +56,11 @@ public class CardPOIManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<CardPOI
 
     public void HideAllCards()
     {
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnHideAllCards();
+        }
+
         GameObject currentContent = ViewLoader.Instance.GetCurrentContent();
 
         if (currentContent)

@@ -71,7 +71,7 @@ namespace GalaxyExplorer
                     yield return new WaitForSeconds(1);
                 }
 
-                SendSpectatorViewPlayersReady();
+                SendOnSpectatorViewPlayersReady();
                 SpectatorViewParticipantsReady = true;
             }
         }
@@ -129,15 +129,71 @@ namespace GalaxyExplorer
             return remoteHead.transform;
         }
 #endif
-
-        private void SendSpectatorViewPlayersReady()
+        public void SendOnAdvanceIntroduction()
         {
-            SpectatorView_GE_CustomMessages.Instance.SendSpectatorViewPlayersReady();
+            // Only the HoloLens user can send this message.
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                SpectatorView_GE_CustomMessages.Instance.SendOnAdvanceIntroduction();
+            }
         }
 
-        public void SendIntroductionEarthPlaced()
+        private void SendOnSpectatorViewPlayersReady()
+        {
+            SpectatorView_GE_CustomMessages.Instance.SendOnSpectatorViewPlayersReady();
+        }
+
+        public void SendOnIntroductionEarthPlaced()
         {
             SpectatorView_GE_CustomMessages.Instance.SendOnIntroductionEarthPlaced();
+        }
+
+        public void SendOnSceneTransitionBackward()
+        {
+            SpectatorView_GE_CustomMessages.Instance.SendOnSceneTransitionBackward();
+        }
+
+        public void SendOnSceneTransitionForward(string sceneName, GameObject transitionSourceObject)
+        {
+            if (!SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                // Only the HoloLens user can send this message
+                Debug.Log("### Not the HoloLens User; skipping SendSceneTransitionForward");
+                return;
+            }
+            string transitionSourceObjectName = string.Empty;
+            if (transitionSourceObject)
+            {
+                transitionSourceObjectName = transitionSourceObject.name;
+            }
+            SpectatorView_GE_CustomMessages.Instance.SendOnTransitionSceneForward(sceneName, transitionSourceObjectName);
+        }
+
+        public void SendOnToggleSolarSystemOrbitScale()
+        {
+            // Only the HoloLens user can send this message.
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                SpectatorView_GE_CustomMessages.Instance.SendOnToggleSolarSystemOrbitScale();
+            }
+        }
+
+        public void SendOnPointOfInterestCardTapped(CardPointOfInterest card)
+        {
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                var cardParent = card.gameObject.transform.parent;
+                var cardParentParent = cardParent.gameObject.transform.parent;
+                SpectatorView_GE_CustomMessages.Instance.SendOnPointOfInterestCardTapped(cardParentParent.name);
+            }
+        }
+
+        public void SendOnHideAllCards()
+        {
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                SpectatorView_GE_CustomMessages.Instance.SendOnHideAllCards();
+            }
         }
     }
 }
@@ -151,41 +207,79 @@ namespace GalaxyExplorer.SpectatorViewExtensions
             return hcm.localIPs.Contains(hcm.HolographicCameraIP.Trim());
         }
 
-#if UNITY_EDITOR
+        public static bool IsHoloLensUser(this SpectatorView.HolographicCameraManager hcm)
+        {
+            if (holoLensUser == null)
+            {
+                GetHoloLensUser(hcm);
+            }
+
+            return holoLensUser.GetID() == SharingStage.Instance.Manager.GetLocalUser().GetID();
+        }
+
         private static User holoLensUser = null;
         public static User GetHoloLensUser(this SpectatorView.HolographicCameraManager hcm)
         {
+            // if we've already determined the HoloLens user, return that cached value.
             if (holoLensUser != null)
             {
                 return holoLensUser;
             }
 
+            // get the user ID's and bail out if there are too few
             var userIds = SharingSessionTracker.Instance.UserIds;
-
             if (userIds.Count < 3)
             {
                 return null;
             }
 
-
-            User retUser = null;
+            // find the HoloLens user amongst the connected users
             for (int i=0; i<userIds.Count; i++)
             {
                 long userId = userIds[i];
+#if UNITY_EDITOR
+                // If we are running inside the Unity editor, we can skip the LocalUser because that's us
                 if (userId == SharingStage.Instance.Manager.GetLocalUser().GetID())
                 {
                     continue;
                 }
-                if (userId  == SpectatorView.HolographicCameraManager.Instance.tppcUser.GetID())
+                // We can also skip the tppcUser because that's the Spectator View camera rig
+                if (hcm.tppcUser == null)
+                {
+                    return null;
+                }
+                else if (userId  == hcm.tppcUser.GetID())
                 {
                     continue;
                 }
-                retUser = SharingSessionTracker.Instance.GetUserById(userId);
+#else
+                // we aren't running as the editor, check to see if we are the Spectator View camera rig
+                if (SpectatorView.HolographicCameraManager.Instance.IsHolographicCameraRig())
+                {
+                    // if we are, we can skip the Local User because that's us
+                    if (userId == SharingStage.Instance.Manager.GetLocalUser().GetID())
+                    {
+                        continue;
+                    }
+                    // We can also skip the editor user for obvious reasons
+                    if (userId == hcm.editorUser.GetID())
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    // if we aren't the editorUser or the Spectator View camera rig...
+                    holoLensUser = SharingStage.Instance.Manager.GetLocalUser();
+                    break;
+                }
+#endif
+                // The only thing left is the HoloLens user so return that.
+                holoLensUser = SharingSessionTracker.Instance.GetUserById(userId);
                 break;
             }
 
-            return retUser;
+            return holoLensUser;
         }
-#endif
     }
 }

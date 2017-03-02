@@ -74,6 +74,11 @@ public class OrbitScalePointOfInterest : PointOfInterest
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnToggleSolarSystemOrbitScale();
+        }
+
         if (audioSource)
         {
             audioSource.PlayOneShot(AirtapSound);

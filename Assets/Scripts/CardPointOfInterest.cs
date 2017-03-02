@@ -130,6 +130,11 @@ public class CardPointOfInterest : PointOfInterest
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnPointOfInterestCardTapped(this);
+        }
+
         // if a card is already up and this was tapped before selection could be faded out, then hide all of the cards (deselection)
         if (!CardPOIManager.Instance.CanTapCard)
         {
