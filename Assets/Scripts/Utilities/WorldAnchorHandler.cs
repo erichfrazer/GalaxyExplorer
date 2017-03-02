@@ -32,19 +32,22 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void Update()
     {
-        // Update will be suspended if the app is suspended or if the device is not tracking
-        if (viewLoaderAnchor != null && !viewLoaderAnchorActivelyTracking)
+        if (!GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            timeToReplaceViewLoader -= Time.deltaTime;
-
-            if (timeToReplaceViewLoader <= 0.0f)
+            // Update will be suspended if the app is suspended or if the device is not tracking
+            if (viewLoaderAnchor != null && !viewLoaderAnchorActivelyTracking)
             {
-                placementControl.TogglePinnedState();
+                timeToReplaceViewLoader -= Time.deltaTime;
+
+                if (timeToReplaceViewLoader <= 0.0f)
+                {
+                    placementControl.TogglePinnedState();
+                }
             }
         }
     }
 
-    public void CreateWorldAnchor()
+    private void CreateWorldAnchor()
     {
         GameObject sourceObject = ViewLoader.Instance.gameObject;
 
@@ -55,7 +58,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
         timeToReplaceViewLoader = placeViewLoaderWaitTime;
     }
 
-    public void DestroyWorldAnchor()
+    private void DestroyWorldAnchor()
     {
         if (viewLoaderAnchor != null)
         {
@@ -75,21 +78,51 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
         }
     }
 
+    private void DetachContentFromSpectatorViewAnchor()
+    {
+        // remove the current content from the Spectator View's Anchor
+        // but keep its world position constant
+        var viewVolume = TransitionManager.Instance.ViewVolume;
+        Debug.Log(string.Format("Detaching content {0} from its parent.", viewVolume.name));
+        viewVolume.transform.SetParent(null, true);
+    }
+    private void AttachContentToSpectatorViewAnchor()
+    {
+        // reparent our content to Spectator View's Anchor
+        var viewVolume = TransitionManager.Instance.ViewVolume;
+        var newParent = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
+        Debug.Log(string.Format("Attaching content {0} to {1}.", viewVolume.name, newParent.name));
+        viewVolume.transform.SetParent(newParent.transform, true);
+    }
+
     #region Callbacks
     private void PlacementControl_ContentHeld()
     {
-        // Make sure our content is active/shown
-        SetViewLoaderActive(true);
-
-        // Destroy our galaxy WorldAnchor if we are moving it
-        DestroyWorldAnchor();
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            DetachContentFromSpectatorViewAnchor();
+        }
+        else
+        {
+            // Make sure our content is active/shown
+            SetViewLoaderActive(true);
+            // Destroy our galaxy WorldAnchor if we are moving it
+            DestroyWorldAnchor();
+        }
     }
 
     private void PlacementControl_ContentPlaced()
     {
         if (ViewLoader.Instance != null)
         {
-            CreateWorldAnchor();
+            if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+            {
+                AttachContentToSpectatorViewAnchor();
+            }
+            else
+            {
+                CreateWorldAnchor();
+            }
         }
     }
 
@@ -102,17 +135,30 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void ResetStarted()
     {
-        if (viewLoaderAnchor != null)
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            DestroyWorldAnchor();
-
-            TransitionManager.Instance.ResetFinished += ResetFinished;
+            DetachContentFromSpectatorViewAnchor();
         }
+        else
+        {
+            if (viewLoaderAnchor != null)
+            {
+                DestroyWorldAnchor();
+            }
+        }
+        TransitionManager.Instance.ResetFinished += ResetFinished;
     }
 
     private void ResetFinished()
     {
-        CreateWorldAnchor();
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            AttachContentToSpectatorViewAnchor();
+        }
+        else
+        {
+            CreateWorldAnchor();
+        }
 
         TransitionManager.Instance.ResetFinished -= ResetFinished;
     }

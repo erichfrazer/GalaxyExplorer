@@ -4,6 +4,7 @@ using HoloToolkit.Unity;
 using System;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
+using GalaxyExplorer.SpectatorViewExtensions;
 
 public class PlacementControl : GazeSelectionTarget
 {
@@ -44,9 +45,13 @@ public class PlacementControl : GazeSelectionTarget
                 element.SetBool("Selected", true);
             }
 
-            // Enable TightTagalong, which enabled the interpolator by default
-            volumeTightTagalong.enabled = true;
-            volumeTightTagalong.distanceToHead = TightTagalongDistance;
+            if (!GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled ||
+                SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                // Enable TightTagalong, which enabled the interpolator by default
+                volumeTightTagalong.enabled = true;
+                volumeTightTagalong.distanceToHead = TightTagalongDistance;
+            }
 
             // Start moving content
             ViewLoader.Instance.transform.SetParent(contentVolume.transform, true);
@@ -80,6 +85,14 @@ public class PlacementControl : GazeSelectionTarget
         return false;
     }
 
+    private void Update()
+    {
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled && isHolding)
+        {
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnVolumePositionUpdate(contentVolume);
+        }
+    }
+
     private void ReleaseContent()
     {
         // Disable the placement volume collider so that our air taps can
@@ -95,6 +108,11 @@ public class PlacementControl : GazeSelectionTarget
 
         // Stop moving content
         ViewLoader.Instance.transform.SetParent(null, true);
+        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        {
+            // send the final position.
+            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnVolumePositionUpdate(contentVolume);
+        }
 
         ToolManager.Instance.UnlockTools();
 

@@ -20,6 +20,7 @@ namespace GalaxyExplorer
             ToggleSolarSystemOrbitScale,
             PointOfInterestCardTapped,
             HideAllCards,
+            UpdateVolumeTransform,
             Max
         }
 
@@ -78,6 +79,7 @@ namespace GalaxyExplorer
             MessageHandlers[TestMessageID.ToggleSolarSystemOrbitScale] = OnToggleSolarSystemOrbitScale;
             MessageHandlers[TestMessageID.PointOfInterestCardTapped] = OnPointOfInterestCardTapped;
             MessageHandlers[TestMessageID.HideAllCards] = OnHideAllCards;
+            MessageHandlers[TestMessageID.UpdateVolumeTransform] = OnUpdateVolumeTransform;
         }
 
         #region // event handlers
@@ -111,8 +113,7 @@ namespace GalaxyExplorer
             {
                 string poiName = ReadyByteArrayAsString(msg);
                 Debug.Log(string.Format("OnPointOfInterestCardTapped: {0}", poiName));
-                var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
-                CardPointOfInterest[] cards = Anchor.GetComponentsInChildren<CardPointOfInterest>();
+                CardPointOfInterest[] cards = ViewLoader.Instance.GetComponentsInChildren<CardPointOfInterest>();
                 bool cardFound = false;
                 foreach (var card in cards)
                 {
@@ -148,8 +149,7 @@ namespace GalaxyExplorer
 
                 // try to find an object with the provided name in the hierarchy
                 bool foundSourceObject = false;
-                var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
-                foreach (PointOfInterest poi in Anchor.GetComponentsInChildren<PointOfInterest>())
+                foreach (PointOfInterest poi in ViewLoader.Instance.GetComponentsInChildren<PointOfInterest>())
                 {
                     if (poi.name.Equals(transitionSourceObjectName))
                     {
@@ -179,6 +179,21 @@ namespace GalaxyExplorer
                 var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
                 OrbitScalePointOfInterest ospoi = Anchor.GetComponentInChildren<OrbitScalePointOfInterest>();
                 ospoi.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
+            }
+        }
+
+        private void OnUpdateVolumeTransform(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnUpdateVolumeTransform");
+                var position = SpectatorView.SV_CustomMessages.Instance.ReadVector3(msg);
+                var rotation = SpectatorView.SV_CustomMessages.Instance.ReadQuaternion(msg);
+                // take the local position read in and transform it to world space
+                var anchorTrans = SpectatorView.SV_ImportExportAnchorManager.Instance.transform;
+                var worldPos = anchorTrans.TransformPoint(position);
+                TransitionManager.Instance.ViewVolume.transform.position = worldPos;
+                TransitionManager.Instance.ViewVolume.transform.rotation = rotation;
             }
         }
         #endregion // event handlers
@@ -266,6 +281,21 @@ namespace GalaxyExplorer
                 SendBasicStateChangeMessage(TestMessageID.HideAllCards);
             }
         }
+
+        public void SendOnVolumePositionUpdate(GameObject volume)
+        {
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                Debug.Log("SendOnVolumePositionUpdate");
+                NetworkOutMessage msg = CreateMessage((byte)TestMessageID.UpdateVolumeTransform);
+                // take the world position of volume and transform it into Anchor's local space
+                var anchorTrans = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;
+                var anchorLocalPos = anchorTrans.InverseTransformPoint(volume.transform.position);
+                SpectatorView.SV_CustomMessages.Instance.AppendTransform(msg, anchorLocalPos, volume.transform.rotation);
+                serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
+            }
+        }
+
         #endregion // message senders
 
         #region // message helpers

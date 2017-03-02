@@ -471,7 +471,7 @@ namespace SpectatorView
         }
 
 #region HelperFunctionsForWriting
-        void AppendTransform(NetworkOutMessage msg, Vector3 position, Quaternion rotation)
+        public void AppendTransform(NetworkOutMessage msg, Vector3 position, Quaternion rotation)
         {
             AppendVector3(msg, position);
             AppendQuaternion(msg, rotation);

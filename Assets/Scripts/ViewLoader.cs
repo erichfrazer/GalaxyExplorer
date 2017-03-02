@@ -190,6 +190,7 @@ public class ViewLoader : GalaxyExplorer.HoloToolkit.Unity.Singleton<ViewLoader>
             var svAnchorInst = SpectatorView.SV_ImportExportAnchorManager.Instance;
             if (svAnchorInst != null)
             {
+                transform.SetParent(svAnchorInst.transform, true);
                 IntroductionFlow.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
                 ToolManager.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
             }
@@ -275,14 +276,6 @@ public class ViewLoader : GalaxyExplorer.HoloToolkit.Unity.Singleton<ViewLoader>
             newContent.transform.position = transform.position;
             newContent.transform.rotation = transform.rotation;
             newContent.transform.SetParent(gameObject.transform, true);
-
-            // If we are using Spectator View, we need to parent the content of
-            // this scene to the Anchor object of the Spectator View Manager
-            if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled &&
-                SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject != null)
-            {
-                newContent.transform.parent = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;
-            }
         }
 
         if (ToolManager.Instance)
