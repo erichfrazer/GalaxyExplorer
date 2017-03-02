@@ -76,6 +76,7 @@ namespace GalaxyExplorer
             }
         }
 
+        #region //editor only code
 #if UNITY_EDITOR
         public static Ray GetSpectatorViewGazeRay(Ray defaultRay, float offsetFromOrigin)
         {
@@ -129,13 +130,11 @@ namespace GalaxyExplorer
             return remoteHead.transform;
         }
 #endif
+        #endregion
+
         public void SendOnAdvanceIntroduction()
         {
-            // Only the HoloLens user can send this message.
-            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
-            {
-                SpectatorView_GE_CustomMessages.Instance.SendOnAdvanceIntroduction();
-            }
+            SpectatorView_GE_CustomMessages.Instance.SendOnAdvanceIntroduction();
         }
 
         private void SendOnSpectatorViewPlayersReady()
@@ -155,12 +154,6 @@ namespace GalaxyExplorer
 
         public void SendOnSceneTransitionForward(string sceneName, GameObject transitionSourceObject)
         {
-            if (!SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
-            {
-                // Only the HoloLens user can send this message
-                Debug.Log("### Not the HoloLens User; skipping SendSceneTransitionForward");
-                return;
-            }
             string transitionSourceObjectName = string.Empty;
             if (transitionSourceObject)
             {
@@ -171,29 +164,19 @@ namespace GalaxyExplorer
 
         public void SendOnToggleSolarSystemOrbitScale()
         {
-            // Only the HoloLens user can send this message.
-            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
-            {
-                SpectatorView_GE_CustomMessages.Instance.SendOnToggleSolarSystemOrbitScale();
-            }
+            SpectatorView_GE_CustomMessages.Instance.SendOnToggleSolarSystemOrbitScale();
         }
 
         public void SendOnPointOfInterestCardTapped(CardPointOfInterest card)
         {
-            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
-            {
-                var cardParent = card.gameObject.transform.parent;
-                var cardParentParent = cardParent.gameObject.transform.parent;
-                SpectatorView_GE_CustomMessages.Instance.SendOnPointOfInterestCardTapped(cardParentParent.name);
-            }
+            var cardParent = card.gameObject.transform.parent;
+            var cardParentParent = cardParent.gameObject.transform.parent;
+            SpectatorView_GE_CustomMessages.Instance.SendOnPointOfInterestCardTapped(cardParentParent.name);
         }
 
         public void SendOnHideAllCards()
         {
-            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
-            {
-                SpectatorView_GE_CustomMessages.Instance.SendOnHideAllCards();
-            }
+            SpectatorView_GE_CustomMessages.Instance.SendOnHideAllCards();
         }
     }
 }
@@ -211,7 +194,10 @@ namespace GalaxyExplorer.SpectatorViewExtensions
         {
             if (holoLensUser == null)
             {
-                GetHoloLensUser(hcm);
+                if (GetHoloLensUser(hcm) == null)
+                {
+                    return false;
+                }
             }
 
             return holoLensUser.GetID() == SharingStage.Instance.Manager.GetLocalUser().GetID();

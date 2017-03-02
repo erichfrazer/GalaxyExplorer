@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using HoloToolkit.Unity;
 using HoloToolkit.Sharing;
+using GalaxyExplorer.SpectatorViewExtensions;
 
 namespace GalaxyExplorer
 {
@@ -31,6 +32,11 @@ namespace GalaxyExplorer
 
         NetworkConnection serverConnection;
         NetworkConnectionAdapter connectionAdapter;
+
+        private long LocalUserId
+        {
+            get { return (long)SharingStage.Instance.Manager.GetLocalUser().GetID(); }
+        }
 
         protected override void Awake()
         {
@@ -74,52 +80,56 @@ namespace GalaxyExplorer
             MessageHandlers[TestMessageID.HideAllCards] = OnHideAllCards;
         }
 
-        private NetworkOutMessage CreateMessage(byte MessageType)
+        #region // event handlers
+        private void OnAdvanceIntroduction(NetworkInMessage msg)
         {
-            NetworkOutMessage msg = serverConnection.CreateMessage(MessageType);
-            msg.Write(MessageType);
-            // Add the local userID so that the remote clients know whose message they are receiving
-            msg.Write((long)SharingStage.Instance.Manager.GetLocalUser().GetID());
-            return msg;
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnAdvanceIntroduction");
+                InputRouter.Instance.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
+            }
         }
 
         private void OnHideAllCards(NetworkInMessage msg)
         {
-            Debug.Log("OnHideAllCards");
-            CardPOIManager.Instance.HideAllCards();
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnHideAllCards");
+                CardPOIManager.Instance.HideAllCards();
+            }
+        }
+
+        private void OnIntroductionEarthPlaced(NetworkInMessage msg)
+        {
+            Debug.Log("OnEarthPlaced");
+            TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
         }
 
         private void OnPointOfInterestCardTapped(NetworkInMessage msg)
         {
-            Debug.Log("OnPointOfInterestCardTapped");
-            msg.ReadInt64(); // read and discard the userID that sent the message.
-            string poiName = ReadyByteArrayAsString(msg);
-            var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
-            CardPointOfInterest[] cards = Anchor.GetComponentsInChildren<CardPointOfInterest>();
-            bool cardFound = false;
-            foreach(var card in cards)
+            if (msg.ReadInt64() != LocalUserId)
             {
-                var cardParent = card.gameObject.transform.parent;
-                var cardParentParent = cardParent.gameObject.transform.parent;
-                if (cardParentParent.name.Equals(poiName))
+                string poiName = ReadyByteArrayAsString(msg);
+                Debug.Log(string.Format("OnPointOfInterestCardTapped: {0}", poiName));
+                var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
+                CardPointOfInterest[] cards = Anchor.GetComponentsInChildren<CardPointOfInterest>();
+                bool cardFound = false;
+                foreach (var card in cards)
                 {
-                    cardFound = true;
-                    card.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
-                    break;
+                    var cardParent = card.gameObject.transform.parent;
+                    var cardParentParent = cardParent.gameObject.transform.parent;
+                    if (cardParentParent.name.Equals(poiName))
+                    {
+                        cardFound = true;
+                        card.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
+                        break;
+                    }
+                }
+                if (!cardFound)
+                {
+                    Debug.Log(string.Format("### Unable to find POI {0}", poiName));
                 }
             }
-            if (!cardFound)
-            {
-                Debug.Log(string.Format("### Unable to find POI {0}", poiName));
-            }
-        }
-
-        private void OnToggleSolarSystemOrbitScale(NetworkInMessage msg)
-        {
-            Debug.Log("OnToggleSolarSystemOrbitalScale");
-            var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
-            OrbitScalePointOfInterest ospoi = Anchor.GetComponentInChildren<OrbitScalePointOfInterest>();
-            ospoi.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
         }
 
         private void OnSceneTransitionBackward(NetworkInMessage msg)
@@ -130,26 +140,28 @@ namespace GalaxyExplorer
 
         private void OnSceneTransitionForward(NetworkInMessage msg)
         {
-            Debug.Log("OnSceneTransitionForward");
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                string sceneName = ReadyByteArrayAsString(msg);
+                string transitionSourceObjectName = ReadyByteArrayAsString(msg);
+                Debug.Log(string.Format("OnSceneTransitionForward: to {0}; from {1}", sceneName, transitionSourceObjectName));
 
-            msg.ReadInt64(); // read and discard the userID
-            string sceneName = ReadyByteArrayAsString(msg);
-            string transitionSourceObjectName = ReadyByteArrayAsString(msg);
-            // try to find an object with the provided name in the hierarchy
-            bool foundSourceObject = false;
-            var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
-            foreach (PointOfInterest poi in Anchor.GetComponentsInChildren<PointOfInterest>())
-            {
-                if (poi.name.Equals(transitionSourceObjectName))
+                // try to find an object with the provided name in the hierarchy
+                bool foundSourceObject = false;
+                var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
+                foreach (PointOfInterest poi in Anchor.GetComponentsInChildren<PointOfInterest>())
                 {
-                    foundSourceObject = true;
-                    TransitionManager.Instance.LoadNextScene(sceneName, poi.gameObject);
-                    break;
+                    if (poi.name.Equals(transitionSourceObjectName))
+                    {
+                        foundSourceObject = true;
+                        TransitionManager.Instance.LoadNextScene(sceneName, poi.gameObject);
+                        break;
+                    }
                 }
-            }
-            if (!foundSourceObject)
-            {
-                Debug.Log(string.Format("Could not find PointOfInterest {0} to transtion to scene {1}", transitionSourceObjectName, sceneName));
+                if (!foundSourceObject)
+                {
+                    Debug.Log(string.Format("Could not find PointOfInterest {0} to transtion to scene {1}", transitionSourceObjectName, sceneName));
+                }
             }
         }
 
@@ -159,22 +171,34 @@ namespace GalaxyExplorer
             SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady = true;
         }
 
-        private void OnAdvanceIntroduction(NetworkInMessage msg)
+        private void OnToggleSolarSystemOrbitScale(NetworkInMessage msg)
         {
-            Debug.Log("OnAdvanceIntroduction");
-            InputRouter.Instance.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnToggleSolarSystemOrbitalScale");
+                var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
+                OrbitScalePointOfInterest ospoi = Anchor.GetComponentInChildren<OrbitScalePointOfInterest>();
+                ospoi.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
+            }
         }
+        #endregion // event handlers
 
-        private void OnIntroductionEarthPlaced(NetworkInMessage msg)
-        {
-            Debug.Log("OnEarthPlaced");
-            TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
-        }
-
+        #region // message senders
         private void SendBasicStateChangeMessage(TestMessageID messageId)
         {
             NetworkOutMessage msg = CreateMessage((byte)messageId);
             serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+        }
+
+        public void SendOnAdvanceIntroduction()
+        {
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                Debug.Log("SendOnAdvanceIntroduction");
+                // due to timing issues, whe might need to eventually send the
+                // current Introduction Flow state
+                SendBasicStateChangeMessage(TestMessageID.AdvanceIntroduction);
+            }
         }
 
         public void SendOnSpectatorViewPlayersReady()
@@ -183,64 +207,75 @@ namespace GalaxyExplorer
             SendBasicStateChangeMessage(TestMessageID.SpectatorViewPlayersReady);
         }
 
-        public void SendOnAdvanceIntroduction()
-        {
-            Debug.Log("SendOnAdvanceIntroduction");
-            // due to timing issues, whe might need to eventually send the
-            // current Introduction Flow state
-            SendBasicStateChangeMessage(TestMessageID.AdvanceIntroduction);
-        }
-
         public void SendOnIntroductionEarthPlaced()
         {
-            Debug.Log("SendOnIntroductionEarthPlaced");
-            SendBasicStateChangeMessage(TestMessageID.IntroductionEarthPlaced);
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                Debug.Log("SendOnIntroductionEarthPlaced");
+                SendBasicStateChangeMessage(TestMessageID.IntroductionEarthPlaced);
+            }
         }
 
         public void SendOnSceneTransitionBackward()
         {
-            Debug.Log("SendOnSceneTransitionBackward");
-            SendBasicStateChangeMessage(TestMessageID.SceneTransitionBackward);
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+
+                Debug.Log("SendOnSceneTransitionBackward");
+                SendBasicStateChangeMessage(TestMessageID.SceneTransitionBackward);
+            }
         }
 
         public void SendOnToggleSolarSystemOrbitScale()
         {
-            Debug.Log("SendOnToggleSolarSystemOrbitScale");
-            SendBasicStateChangeMessage(TestMessageID.ToggleSolarSystemOrbitScale);
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                Debug.Log("SendOnToggleSolarSystemOrbitScale");
+                SendBasicStateChangeMessage(TestMessageID.ToggleSolarSystemOrbitScale);
+            }
         }
 
         public void SendOnTransitionSceneForward(string sceneName, string transitionSourceObjectName)
         {
-            Debug.Log("SendOnTransitionSceneForward");
-
-            NetworkOutMessage msg = CreateMessage((byte)TestMessageID.SceneTransitionForward);
-            Debug.Log(string.Format("SpectatorView_GE_CustomMessages::SendOnTransitionSceneForward({0}, {1});", sceneName, transitionSourceObjectName));
-            AppendStringAsByteArray(msg, sceneName);
-            AppendStringAsByteArray(msg, transitionSourceObjectName);
-            serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                Debug.Log(string.Format("SendOnTransitionSceneForward({0}, {1}", sceneName, transitionSourceObjectName));
+                NetworkOutMessage msg = CreateMessage((byte)TestMessageID.SceneTransitionForward);
+                AppendStringAsByteArray(msg, sceneName);
+                AppendStringAsByteArray(msg, transitionSourceObjectName);
+                serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+            }
         }
 
         public void SendOnPointOfInterestCardTapped(string poiName)
         {
-            Debug.Log("SendOnPointOfInterestCardTapped");
-            NetworkOutMessage msg = CreateMessage((byte)TestMessageID.PointOfInterestCardTapped);
-            AppendStringAsByteArray(msg, poiName);
-            serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                Debug.Log(string.Format("SendOnPointOfInterestCardTapped({0})", poiName));
+                NetworkOutMessage msg = CreateMessage((byte)TestMessageID.PointOfInterestCardTapped);
+                AppendStringAsByteArray(msg, poiName);
+                serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+            }
         }
 
         public void SendOnHideAllCards()
         {
-            Debug.Log("SendOnHideAllCards");
-            SendBasicStateChangeMessage(TestMessageID.HideAllCards);
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            if (connectionAdapter != null)
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
             {
-                connectionAdapter.MessageReceivedCallback -= ConnectionAdapter_OnMessageReceived;
+                Debug.Log("SendOnHideAllCards");
+                SendBasicStateChangeMessage(TestMessageID.HideAllCards);
             }
+        }
+        #endregion // message senders
+
+        #region // message helpers
+        private NetworkOutMessage CreateMessage(byte MessageType)
+        {
+            NetworkOutMessage msg = serverConnection.CreateMessage(MessageType);
+            msg.Write(MessageType);
+            // Add the local userID so that the remote clients know whose message they are receiving
+            msg.Write(LocalUserId);
+            return msg;
         }
 
         private void ConnectionAdapter_OnMessageReceived(NetworkConnection connection, NetworkInMessage msg)
@@ -267,6 +302,16 @@ namespace GalaxyExplorer
             msg.ReadArray(bytes, (uint)byteSize);
 
             return System.Text.Encoding.ASCII.GetString(bytes);
+        }
+        #endregion
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (connectionAdapter != null)
+            {
+                connectionAdapter.MessageReceivedCallback -= ConnectionAdapter_OnMessageReceived;
+            }
         }
     }
 }
