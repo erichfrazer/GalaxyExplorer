@@ -46,7 +46,7 @@ public class PlacementControl : GazeSelectionTarget
             }
 
             if (!GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled ||
-                SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+                GalaxyExplorer.SpectatorViewSharingConnector.Instance.IsHoloLensUser)
             {
                 // Enable TightTagalong, which enabled the interpolator by default
                 volumeTightTagalong.enabled = true;

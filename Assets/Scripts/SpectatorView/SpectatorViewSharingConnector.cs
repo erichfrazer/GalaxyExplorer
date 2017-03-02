@@ -28,7 +28,6 @@ namespace GalaxyExplorer
             }
         }
 
-        // Use this for initialization
         private IEnumerator Start()
         {
             SpectatorViewEnabled = true;
@@ -74,6 +73,11 @@ namespace GalaxyExplorer
                 SendOnSpectatorViewPlayersReady();
                 SpectatorViewParticipantsReady = true;
             }
+        }
+
+        public bool IsHoloLensUser
+        {
+            get { return SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser(); }
         }
 
         #region //editor only code
@@ -137,14 +141,21 @@ namespace GalaxyExplorer
             SpectatorView_GE_CustomMessages.Instance.SendOnAdvanceIntroduction();
         }
 
-        private void SendOnSpectatorViewPlayersReady()
+        public void SendOnHideAllCards()
         {
-            SpectatorView_GE_CustomMessages.Instance.SendOnSpectatorViewPlayersReady();
+            SpectatorView_GE_CustomMessages.Instance.SendOnHideAllCards();
         }
 
         public void SendOnIntroductionEarthPlaced()
         {
             SpectatorView_GE_CustomMessages.Instance.SendOnIntroductionEarthPlaced();
+        }
+
+        public void SendOnPointOfInterestCardTapped(CardPointOfInterest card)
+        {
+            var cardParent = card.gameObject.transform.parent;
+            var cardParentParent = cardParent.gameObject.transform.parent;
+            SpectatorView_GE_CustomMessages.Instance.SendOnPointOfInterestCardTapped(cardParentParent.name);
         }
 
         public void SendOnSceneTransitionBackward()
@@ -162,21 +173,14 @@ namespace GalaxyExplorer
             SpectatorView_GE_CustomMessages.Instance.SendOnTransitionSceneForward(sceneName, transitionSourceObjectName);
         }
 
+        private void SendOnSpectatorViewPlayersReady()
+        {
+            SpectatorView_GE_CustomMessages.Instance.SendOnSpectatorViewPlayersReady();
+        }
+
         public void SendOnToggleSolarSystemOrbitScale()
         {
             SpectatorView_GE_CustomMessages.Instance.SendOnToggleSolarSystemOrbitScale();
-        }
-
-        public void SendOnPointOfInterestCardTapped(CardPointOfInterest card)
-        {
-            var cardParent = card.gameObject.transform.parent;
-            var cardParentParent = cardParent.gameObject.transform.parent;
-            SpectatorView_GE_CustomMessages.Instance.SendOnPointOfInterestCardTapped(cardParentParent.name);
-        }
-
-        public void SendOnHideAllCards()
-        {
-            SpectatorView_GE_CustomMessages.Instance.SendOnHideAllCards();
         }
 
         public void SendOnUpdateVolumeTransform(GameObject volume)
