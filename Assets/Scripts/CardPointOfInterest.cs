@@ -3,6 +3,7 @@
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
 using System.Collections;
+using GalaxyExplorer_SpectatorView;
 
 // The card point of interest can be selected, which will animate the text next to the description card. This is complicated because
 // the point of interest is a parent in the POI hierarchy to the description text and fading out all of the POIs on selection would
@@ -130,9 +131,9 @@ public class CardPointOfInterest : PointOfInterest
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnPointOfInterestCardTapped(this);
+            SpectatorViewSharingConnector.Instance.SendOnPointOfInterestCardTapped(this);
         }
 
         // if a card is already up and this was tapped before selection could be faded out, then hide all of the cards (deselection)

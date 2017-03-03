@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
+using GalaxyExplorer_SpectatorView;
 
 public class OrbitPicker : GazeSelectionTarget
 {
@@ -34,7 +35,7 @@ public class OrbitPicker : GazeSelectionTarget
         Ray cameraRay;
         cameraRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
 #if UNITY_EDITOR
-        cameraRay = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewGazeRay(cameraRay, 0f);
+        cameraRay = SpectatorViewSharingConnector.GetHoloLensUserGazeRay(cameraRay, 0f);
 #endif
         RaycastHit hitInfo;
         if (orbitMesh && orbitMesh.Raycast(cameraRay, out hitInfo, 1000.0f))

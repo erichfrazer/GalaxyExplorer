@@ -1,11 +1,11 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-
 using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
+using GalaxyExplorer_SpectatorView;
 
 public class OrbitScalePointOfInterest : PointOfInterest
 {
@@ -74,9 +74,9 @@ public class OrbitScalePointOfInterest : PointOfInterest
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnToggleSolarSystemOrbitScale();
+            SpectatorViewSharingConnector.Instance.SendOnToggleSolarSystemOrbitScale();
         }
 
         if (audioSource)

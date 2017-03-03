@@ -1,8 +1,8 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.VR.WSA;
+using GalaxyExplorer_SpectatorView;
 
 public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<WorldAnchorHandler>
 {
@@ -32,7 +32,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void Update()
     {
-        if (!GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (!SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             // Update will be suspended if the app is suspended or if the device is not tracking
             if (viewLoaderAnchor != null && !viewLoaderAnchorActivelyTracking)
@@ -98,7 +98,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
     #region Callbacks
     private void PlacementControl_ContentHeld()
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             DetachContentFromSpectatorViewAnchor();
         }
@@ -115,7 +115,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
     {
         if (ViewLoader.Instance != null)
         {
-            if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+            if (SpectatorViewSharingConnector.SpectatorViewEnabled)
             {
                 AttachContentToSpectatorViewAnchor();
             }
@@ -135,7 +135,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void ResetStarted()
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             DetachContentFromSpectatorViewAnchor();
         }
@@ -151,7 +151,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void ResetFinished()
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             AttachContentToSpectatorViewAnchor();
         }

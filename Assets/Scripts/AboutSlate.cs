@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using GalaxyExplorer_SpectatorView;
 
 public class AboutSlate : GalaxyExplorer.HoloToolkit.Unity.Singleton<AboutSlate>
 {
@@ -30,7 +31,7 @@ public class AboutSlate : GalaxyExplorer.HoloToolkit.Unity.Singleton<AboutSlate>
         // aren't consumed until needed. If this is the first time showing
         // the about slate and we are using Spectator View, we need to attach
         // ourselves to SpectatorView's anchor.
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             Instance.gameObject.transform.parent = 
                 SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;

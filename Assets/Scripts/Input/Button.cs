@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.VR.WSA.Input;
 using System;
 using System.Collections.Generic;
+using GalaxyExplorer_SpectatorView;
 
 public enum ButtonType
 {
@@ -231,9 +232,9 @@ public class Button : GazeSelectionTarget, IFadeTarget
                 break;
 
             case ButtonType.MoveCube:
-                if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+                if (SpectatorViewSharingConnector.SpectatorViewEnabled)
                 {
-                    GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnMoveCube();
+                    SpectatorViewSharingConnector.Instance.SendOnMoveCube();
                 }
                 ToolManager.Instance.LockTools();
                 cubeToMove.TogglePinnedState();

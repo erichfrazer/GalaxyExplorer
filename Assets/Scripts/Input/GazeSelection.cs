@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 using System.Collections.Generic;
 using UnityEngine;
+using GalaxyExplorer_SpectatorView;
 
 public class GazeSelection : MonoBehaviour
 {
@@ -73,7 +74,7 @@ public class GazeSelection : MonoBehaviour
             {
                 gazeRay = new Ray(Camera.main.transform.position + (Camera.main.nearClipPlane * Camera.main.transform.forward), Camera.main.transform.forward);
 #if UNITY_EDITOR
-                gazeRay = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewGazeRay(gazeRay, Camera.main.nearClipPlane);
+                gazeRay = SpectatorViewSharingConnector.GetHoloLensUserGazeRay(gazeRay, Camera.main.nearClipPlane);
 #endif
             }
             else
@@ -106,8 +107,10 @@ public class GazeSelection : MonoBehaviour
                             // only consider target objects that are within the target spread angle specified on start
                             foreach (RaycastHit target in hitTargets)
                             {
-                                Vector3 toTarget = Vector3.Normalize(target.transform.position - Camera.main.transform.position);
-                                float dotProduct = Vector3.Dot(Camera.main.transform.forward, toTarget);
+                                Vector3 toTarget = Vector3.Normalize(target.transform.position - gazeRay.origin);
+                                var transformToUse = SpectatorViewSharingConnector.GetHoloLensUserTransform(Camera.main.transform);
+                                float dotProduct = Vector3.Dot(transformToUse.position, toTarget);
+
                                 // The dotProduct of our two vectors is equivalent to the cosine
                                 // of the angle between them. If it is larger than the targetSpreadValue
                                 // established in Start(), that means the hit occurred within the

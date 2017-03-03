@@ -1,11 +1,10 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-using HoloToolkit.Unity;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using GalaxyExplorer_SpectatorView;
 
 public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<TransitionManager>
 {
@@ -476,9 +475,9 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
             return;
         }
 
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnSceneTransitionBackward();
+            SpectatorViewSharingConnector.Instance.SendOnSceneTransitionBackward();
         }
 
         inTransition = true;
@@ -791,9 +790,9 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
             return;
         }
 
-        if (sourceObject && GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (sourceObject && SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnSceneTransitionForward(sceneName, sourceObject);
+            SpectatorViewSharingConnector.Instance.SendOnSceneTransitionForward(sceneName, sourceObject);
         }
 
         inTransition = true;

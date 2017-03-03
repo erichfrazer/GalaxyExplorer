@@ -1,9 +1,8 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-using System.Collections;
-using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.VR.WSA;
+using GalaxyExplorer_SpectatorView;
 
 public class LSRPlaneModifier : GalaxyExplorer.HoloToolkit.Unity.Singleton<LSRPlaneModifier>
 {
@@ -34,7 +33,7 @@ public class LSRPlaneModifier : GalaxyExplorer.HoloToolkit.Unity.Singleton<LSRPl
         Ray cameraRay;
         cameraRay = new Ray(camPos, cam.transform.forward);
 #if UNITY_EDITOR
-        cameraRay = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewGazeRay(cameraRay, 0f);
+        cameraRay = SpectatorViewSharingConnector.GetHoloLensUserGazeRay(cameraRay, 0f);
 #endif
         var raycastResults = Physics.RaycastAll(cameraRay, float.MaxValue, TargetCollisionLayers);
         if (raycastResults.Length > 0)

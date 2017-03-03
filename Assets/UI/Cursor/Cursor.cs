@@ -1,11 +1,11 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-using HoloToolkit.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using GalaxyExplorer_SpectatorView;
 
 public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
 {
@@ -317,7 +317,7 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
         Ray originRay;
         originRay = new Ray(cam.transform.position + (cam.nearClipPlane * cam.transform.forward), cam.transform.forward);
 #if UNITY_EDITOR
-        originRay = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewGazeRay(originRay, cam.nearClipPlane);
+        originRay = SpectatorViewSharingConnector.GetHoloLensUserGazeRay(originRay, cam.nearClipPlane);
         Debug.DrawLine(originRay.origin, originRay.direction * 10f, Color.red);
 #endif
 
@@ -329,7 +329,7 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
         RaycastHit hitInfo;
         Transform raycastOriginTransform = cam.transform;
 #if UNITY_EDITOR
-        raycastOriginTransform = GalaxyExplorer.SpectatorViewSharingConnector.GetSpectatorViewUserTransform(raycastOriginTransform);
+        raycastOriginTransform = SpectatorViewSharingConnector.GetHoloLensUserTransform(raycastOriginTransform);
 #endif
         Vector3 desiredPosition = raycastOriginTransform.position + (raycastOriginTransform.forward * defaultCursorDistance);
 

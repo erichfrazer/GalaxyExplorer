@@ -2,9 +2,10 @@
 using UnityEngine;
 using HoloToolkit.Unity;
 using HoloToolkit.Sharing;
-using GalaxyExplorer.SpectatorViewExtensions;
+using SpectatorView;
+using GalaxyExplorer_SpectatorView.Extensions;
 
-namespace GalaxyExplorer
+namespace GalaxyExplorer_SpectatorView
 {
     public class SpectatorViewSharingConnector : Singleton<SpectatorViewSharingConnector>
     {
@@ -55,7 +56,7 @@ namespace GalaxyExplorer
                     {
                         if ((hcmInstance.editorUser != null))
                         {
-                            Debug.Log("### have all SV participants ###");
+                            Debug.Log("### We have all SV participants ###");
                             break;
                         }
                     }
@@ -73,16 +74,28 @@ namespace GalaxyExplorer
             get { return SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser(); }
         }
 
-        #region //editor only code
-#if UNITY_EDITOR
-        public static Ray GetSpectatorViewGazeRay(Ray defaultRay, float offsetFromOrigin)
+        public static Transform GetHoloLensUserTransform(Transform defaultTransform)
         {
-            if (!SpectatorViewEnabled)
+            if (!SpectatorViewEnabled || !SpectatorView.HolographicCameraManager.Instance)
             {
-                return defaultRay;
+                return defaultTransform;
             }
 
-            if (!SpectatorView.HolographicCameraManager.Instance)
+            var remoteUser = SpectatorView.HolographicCameraManager.Instance.GetHoloLensUser();
+
+            if (remoteUser == null)
+            {
+                return defaultTransform;
+            }
+
+            return SpectatorView.SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject.transform;
+        }
+
+        #region //editor only code
+#if UNITY_EDITOR
+        public static Ray GetHoloLensUserGazeRay(Ray defaultRay, float offsetFromOrigin)
+        {
+            if (!SpectatorViewEnabled || !SpectatorView.HolographicCameraManager.Instance)
             {
                 return defaultRay;
             }
@@ -102,29 +115,6 @@ namespace GalaxyExplorer
             retRay.direction = remoteHead.transform.forward;
 
             return retRay;
-        }
-
-        public static Transform GetSpectatorViewUserTransform(Transform defaultTransform)
-        {
-            if (!SpectatorViewEnabled)
-            {
-                return defaultTransform;
-            }
-
-            if (!SpectatorView.HolographicCameraManager.Instance)
-            {
-                return defaultTransform;
-            }
-
-            var remoteUser = SpectatorView.HolographicCameraManager.Instance.GetHoloLensUser();
-
-            if (remoteUser == null)
-            {
-                return defaultTransform;
-            }
-
-            var remoteHead = SpectatorView.SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject;
-            return remoteHead.transform;
         }
 #endif
         #endregion
@@ -168,7 +158,7 @@ namespace GalaxyExplorer
             {
                 transitionSourceObjectName = transitionSourceObject.name;
             }
-            SpectatorView_GE_CustomMessages.Instance.SendOnTransitionSceneForward(sceneName, transitionSourceObjectName);
+            SpectatorView_GE_CustomMessages.Instance.SendOnSceneTransitionForward(sceneName, transitionSourceObjectName);
         }
 
         private void SendOnSpectatorViewPlayersReady()
@@ -188,7 +178,7 @@ namespace GalaxyExplorer
     }
 }
 
-namespace GalaxyExplorer.SpectatorViewExtensions
+namespace GalaxyExplorer_SpectatorView.Extensions
 {
     public static class HolographicCameraManager
     {

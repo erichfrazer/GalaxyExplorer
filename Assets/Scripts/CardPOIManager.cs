@@ -1,7 +1,7 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-using HoloToolkit.Unity;
 using UnityEngine;
+using GalaxyExplorer_SpectatorView;
 
 public class CardPOIManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<CardPOIManager>
 {
@@ -51,9 +51,9 @@ public class CardPOIManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<CardPOI
 
     private void InputTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind arg1, int tapCount, Ray arg2)
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnHideAllCards();
+            SpectatorViewSharingConnector.Instance.SendOnHideAllCards();
         }
 
         HideAllCards();

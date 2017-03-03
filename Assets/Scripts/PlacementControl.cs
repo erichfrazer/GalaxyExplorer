@@ -4,7 +4,7 @@ using HoloToolkit.Unity;
 using System;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
-using GalaxyExplorer.SpectatorViewExtensions;
+using GalaxyExplorer_SpectatorView;
 
 public class PlacementControl : GazeSelectionTarget
 {
@@ -45,8 +45,8 @@ public class PlacementControl : GazeSelectionTarget
                 element.SetBool("Selected", true);
             }
 
-            if (!GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled ||
-                GalaxyExplorer.SpectatorViewSharingConnector.Instance.IsHoloLensUser)
+            if (!SpectatorViewSharingConnector.SpectatorViewEnabled ||
+                SpectatorViewSharingConnector.Instance.IsHoloLensUser)
             {
                 // Enable TightTagalong, which enabled the interpolator by default
                 volumeTightTagalong.enabled = true;
@@ -87,9 +87,9 @@ public class PlacementControl : GazeSelectionTarget
 
     private void Update()
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled && isHolding)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled && isHolding)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
+            SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
         }
     }
 
@@ -108,10 +108,10 @@ public class PlacementControl : GazeSelectionTarget
 
         // Stop moving content
         ViewLoader.Instance.transform.SetParent(null, true);
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             // send the final position.
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
+            SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
         }
 
         ToolManager.Instance.UnlockTools();

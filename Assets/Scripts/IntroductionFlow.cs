@@ -4,6 +4,7 @@ using System;
 using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
+using GalaxyExplorer_SpectatorView;
 
 public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<IntroductionFlow>
 {
@@ -125,7 +126,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
         {
             // If we are using Spectator View, wait until we have everyone ready
             case IntroductionState.IntroductionStateWaitForSpectatorViewParticipants:
-                if (GalaxyExplorer.SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady)
+                if (SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady)
                 {
                     StartIntroductionVO();
                 }
@@ -258,7 +259,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
         // If we are using Spectator View, set the application's state to force us to wait
         // until the SpectatorView participants are ready.
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
             Debug.Log("Waiting for all Spectator View participants...");
             currentState = IntroductionState.IntroductionStateWaitForSpectatorViewParticipants;
@@ -284,9 +285,9 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
     private void OnTapped(InteractionSourceKind source, int tapCount, Ray headRay)
     {
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnAdvanceIntroduction();
+            SpectatorViewSharingConnector.Instance.SendOnAdvanceIntroduction();
         }
 
         switch (currentState)
@@ -393,9 +394,9 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
             introEarth.TransitionFromIntroToReal();
         }
 
-        if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
         {
-            GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnIntroductionEarthPlaced();
+            SpectatorViewSharingConnector.Instance.SendOnIntroductionEarthPlaced();
         }
         AdvanceIntroduction();
     }
