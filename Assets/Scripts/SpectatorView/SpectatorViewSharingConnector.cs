@@ -6,13 +6,6 @@ using GalaxyExplorer.SpectatorViewExtensions;
 
 namespace GalaxyExplorer
 {
-    public enum SpectatorViewParticipant
-    {
-        UnityClient,
-        SpectatorViewRig,
-        ClientHoloLens
-    }
-
     public class SpectatorViewSharingConnector : Singleton<SpectatorViewSharingConnector>
     {
         public static bool SpectatorViewEnabled = false;
@@ -149,6 +142,11 @@ namespace GalaxyExplorer
         public void SendOnIntroductionEarthPlaced()
         {
             SpectatorView_GE_CustomMessages.Instance.SendOnIntroductionEarthPlaced();
+        }
+
+        public void SendOnMoveCube()
+        {
+            SpectatorView_GE_CustomMessages.Instance.SendOnMoveCube();
         }
 
         public void SendOnPointOfInterestCardTapped(CardPointOfInterest card)

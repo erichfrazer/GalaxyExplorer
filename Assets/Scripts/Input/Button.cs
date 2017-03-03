@@ -231,6 +231,10 @@ public class Button : GazeSelectionTarget, IFadeTarget
                 break;
 
             case ButtonType.MoveCube:
+                if (GalaxyExplorer.SpectatorViewSharingConnector.SpectatorViewEnabled)
+                {
+                    GalaxyExplorer.SpectatorViewSharingConnector.Instance.SendOnMoveCube();
+                }
                 ToolManager.Instance.LockTools();
                 cubeToMove.TogglePinnedState();
                 break;

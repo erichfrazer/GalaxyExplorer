@@ -24,6 +24,7 @@ namespace GalaxyExplorer
             PointOfInterestCardTapped,
             HideAllCards,
             // Movement messages
+            MoveCube,
             UpdateVolumeTransform,
             Max
         }
@@ -83,6 +84,7 @@ namespace GalaxyExplorer
             MessageHandlers[TestMessageID.ToggleSolarSystemOrbitScale] = OnToggleSolarSystemOrbitScale;
             MessageHandlers[TestMessageID.PointOfInterestCardTapped] = OnPointOfInterestCardTapped;
             MessageHandlers[TestMessageID.HideAllCards] = OnHideAllCards;
+            MessageHandlers[TestMessageID.MoveCube] = OnMoveCube;
             MessageHandlers[TestMessageID.UpdateVolumeTransform] = OnUpdateVolumeTransform;
         }
 
@@ -109,6 +111,16 @@ namespace GalaxyExplorer
         {
             Debug.Log("OnEarthPlaced");
             TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
+        }
+
+        private void OnMoveCube(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnMoveCube");
+                ToolManager.Instance.LockTools();
+                TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
+            }
         }
 
         private void OnPointOfInterestCardTapped(NetworkInMessage msg)
@@ -217,6 +229,15 @@ namespace GalaxyExplorer
                 // due to timing issues, whe might need to eventually send the
                 // current Introduction Flow state
                 SendBasicStateChangeMessage(TestMessageID.AdvanceIntroduction);
+            }
+        }
+
+        public void SendOnMoveCube()
+        {
+            if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
+            {
+                Debug.Log("SendOnMoveCube");
+                SendBasicStateChangeMessage(TestMessageID.MoveCube);
             }
         }
 
