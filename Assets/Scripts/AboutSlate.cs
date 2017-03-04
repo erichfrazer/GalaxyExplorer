@@ -31,7 +31,7 @@ public class AboutSlate : GalaxyExplorer.HoloToolkit.Unity.Singleton<AboutSlate>
         // aren't consumed until needed. If this is the first time showing
         // the about slate and we are using Spectator View, we need to attach
         // ourselves to SpectatorView's anchor.
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             Instance.gameObject.transform.parent = 
                 SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;

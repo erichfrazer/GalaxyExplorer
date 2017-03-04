@@ -54,8 +54,13 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
 
     private Dictionary<CursorState, CursorStageImage> stateImagesRepository;
 
+    private bool runningInEditor = false;
+
     private void Awake()
     {
+#if UNITY_EDITOR
+        runningInEditor = true;
+#endif
         // The cursor is hidden by default. It will get shown when we load the main scene
         visible = false;
 
@@ -314,27 +319,28 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
         }
 
         // We do not want the cursor to collide with things inside the near clip plane. shift our gaze position forward by that amount.
-        Ray originRay;
-        originRay = new Ray(cam.transform.position + (cam.nearClipPlane * cam.transform.forward), cam.transform.forward);
-#if UNITY_EDITOR
-        originRay = SpectatorViewSharingConnector.GetHoloLensUserGazeRay(originRay, cam.nearClipPlane);
-        Debug.DrawLine(originRay.origin, originRay.direction * 10f, Color.red);
-#endif
+        Ray originRay = new Ray(cam.transform.position + (cam.nearClipPlane * cam.transform.forward), cam.transform.forward);
+        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            originRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(originRay, cam.nearClipPlane);
+            Debug.DrawLine(originRay.origin, originRay.direction * 10f, Color.red);
+        }
 
         bool hasHit = false;
         bool hasUIHit = false;
         isOverToolbar = false;
         isColliderGalaxyCardPOI = false;
 
-        RaycastHit hitInfo;
         Transform raycastOriginTransform = cam.transform;
-#if UNITY_EDITOR
-        raycastOriginTransform = SpectatorViewSharingConnector.GetHoloLensUserTransform(raycastOriginTransform);
-#endif
+        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            raycastOriginTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(raycastOriginTransform);
+        }
         Vector3 desiredPosition = raycastOriginTransform.position + (raycastOriginTransform.forward * defaultCursorDistance);
 
         foreach (PriorityLayerMask priorityMask in prioritizedCursorMask)
         {
+            RaycastHit hitInfo;
             switch (priorityMask.collisionType)
             {
                 case CursorCollisionSearch.RaycastSearch:
@@ -364,7 +370,6 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
 
                         desiredPosition = raycastOriginTransform.TransformPoint(camSpaceDesiredPosition);
                     }
-
                     break;
             }
 

@@ -232,9 +232,9 @@ public class Button : GazeSelectionTarget, IFadeTarget
                 break;
 
             case ButtonType.MoveCube:
-                if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+                if (GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    SpectatorViewSharingConnector.Instance.SendOnMoveCube();
+                    GE_SpectatorViewManager.Instance.SendOnMoveCube();
                 }
                 ToolManager.Instance.LockTools();
                 cubeToMove.TogglePinnedState();

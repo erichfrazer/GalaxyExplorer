@@ -45,8 +45,8 @@ public class PlacementControl : GazeSelectionTarget
                 element.SetBool("Selected", true);
             }
 
-            if (!SpectatorViewSharingConnector.SpectatorViewEnabled ||
-                SpectatorViewSharingConnector.Instance.IsHoloLensUser)
+            if (!GE_SpectatorViewManager.SpectatorViewEnabled ||
+                GE_SpectatorViewManager.Instance.IsHoloLensUser)
             {
                 // Enable TightTagalong, which enabled the interpolator by default
                 volumeTightTagalong.enabled = true;
@@ -87,9 +87,9 @@ public class PlacementControl : GazeSelectionTarget
 
     private void Update()
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled && isHolding)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled && isHolding)
         {
-            SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
+            GE_SpectatorViewManager.Instance.SendOnUpdateVolumeTransform(contentVolume);
         }
     }
 
@@ -108,10 +108,10 @@ public class PlacementControl : GazeSelectionTarget
 
         // Stop moving content
         ViewLoader.Instance.transform.SetParent(null, true);
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             // send the final position.
-            SpectatorViewSharingConnector.Instance.SendOnUpdateVolumeTransform(contentVolume);
+            GE_SpectatorViewManager.Instance.SendOnUpdateVolumeTransform(contentVolume);
         }
 
         ToolManager.Instance.UnlockTools();

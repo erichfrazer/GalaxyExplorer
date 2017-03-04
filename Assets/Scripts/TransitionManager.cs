@@ -163,6 +163,7 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
     private string sceneToUnload;
 
     private bool inTransition = false;
+    private bool runningInEditor = false;
 
     public bool InTransition
     {
@@ -174,6 +175,12 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
 
     private bool fadingPointsOfInterest = false; // prevent content from physically transitioning until POIs have completely faded out
 
+    private void Awake()
+    {
+#if UNITY_EDITOR
+        runningInEditor = true;
+#endif
+    }
     private void Start()
     {
         if (ViewVolume == null)
@@ -202,11 +209,7 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
         Tools.SetActive(true);
 
         // Only show the cursor for HoloLens Gaze input and in the Editor
-#if UNITY_EDITOR
-        Cursor.Instance.visible = true;
-#else
-        Cursor.Instance.visible = UnityEngine.VR.VRDevice.isPresent;
-#endif
+        Cursor.Instance.visible = runningInEditor ? true : UnityEngine.VR.VRDevice.isPresent;
     }
 
     public void ResetView()
@@ -475,9 +478,9 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
             return;
         }
 
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            SpectatorViewSharingConnector.Instance.SendOnSceneTransitionBackward();
+            GE_SpectatorViewManager.Instance.SendOnSceneTransitionBackward();
         }
 
         inTransition = true;
@@ -790,9 +793,9 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
             return;
         }
 
-        if (sourceObject && SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (sourceObject && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            SpectatorViewSharingConnector.Instance.SendOnSceneTransitionForward(sceneName, sourceObject);
+            GE_SpectatorViewManager.Instance.SendOnSceneTransitionForward(sceneName, sourceObject);
         }
 
         inTransition = true;

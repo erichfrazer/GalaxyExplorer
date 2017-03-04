@@ -17,6 +17,8 @@ public class GazeSelection : MonoBehaviour
     // ordered from closest to gaze to farthest
     private SortedList<float, RaycastHit> selectedTargets;
 
+    private bool runningInEditor = false;
+
     public IList<RaycastHit> SelectedTargets
     {
         get { return selectedTargets != null ? selectedTargets.Values : null; }
@@ -24,7 +26,13 @@ public class GazeSelection : MonoBehaviour
 
     private float targetSpreadMinValue;
     private PlacementControl placementControl;
-    
+
+    private void Awake()
+    {
+#if UNITY_EDITOR
+        runningInEditor = true;
+#endif
+    }
     private void Start()
     {
         if (Camera.main == null)
@@ -52,12 +60,10 @@ public class GazeSelection : MonoBehaviour
 
         selectedTargets = new SortedList<float, RaycastHit>();
         targetSpreadMinValue = Mathf.Cos(Mathf.Deg2Rad * GazeSpreadDegrees);
-        // - 12/27/2016 - Added nested if as a better solution to issue #80
-        if (!UnityEngine.VR.VRDevice.isPresent)
+
+        if (!runningInEditor && !UnityEngine.VR.VRDevice.isPresent)
         {
-#if !UNITY_EDITOR
             UseSphericalConeSearch = false;
-#endif
         }
     }
 
@@ -73,9 +79,10 @@ public class GazeSelection : MonoBehaviour
             if (UnityEngine.VR.VRDevice.isPresent)
             {
                 gazeRay = new Ray(Camera.main.transform.position + (Camera.main.nearClipPlane * Camera.main.transform.forward), Camera.main.transform.forward);
-#if UNITY_EDITOR
-                gazeRay = SpectatorViewSharingConnector.GetHoloLensUserGazeRay(gazeRay, Camera.main.nearClipPlane);
-#endif
+                if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+                {
+                    gazeRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(gazeRay, Camera.main.nearClipPlane);
+                }
             }
             else
             {
@@ -108,8 +115,12 @@ public class GazeSelection : MonoBehaviour
                             foreach (RaycastHit target in hitTargets)
                             {
                                 Vector3 toTarget = Vector3.Normalize(target.transform.position - gazeRay.origin);
-                                var transformToUse = SpectatorViewSharingConnector.GetHoloLensUserTransform(Camera.main.transform);
-                                float dotProduct = Vector3.Dot(transformToUse.position, toTarget);
+                                var transformToUse = Camera.main.transform;
+                                if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+                                {
+                                    transformToUse = GE_SpectatorViewManager.GetHoloLensUserTransform(Camera.main.transform);
+                                }
+                                float dotProduct = Vector3.Dot(transformToUse.forward, toTarget);
 
                                 // The dotProduct of our two vectors is equivalent to the cosine
                                 // of the angle between them. If it is larger than the targetSpreadValue

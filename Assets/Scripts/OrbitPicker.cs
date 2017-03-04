@@ -9,7 +9,14 @@ public class OrbitPicker : GazeSelectionTarget
     public PointOfInterest pointOfInterest;
     private MeshCollider orbitMesh;
     private GameObject displayCard;
+    private bool runningInEditor = false;
 
+    private void Awake()
+    {
+#if UNITY_EDITOR
+        runningInEditor = true;
+#endif
+    }
     private void Start()
     {
         orbitMesh = GetComponent<MeshCollider>();
@@ -34,9 +41,10 @@ public class OrbitPicker : GazeSelectionTarget
     {
         Ray cameraRay;
         cameraRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-#if UNITY_EDITOR
-        cameraRay = SpectatorViewSharingConnector.GetHoloLensUserGazeRay(cameraRay, 0f);
-#endif
+        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            cameraRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(cameraRay, 0f);
+        }
         RaycastHit hitInfo;
         if (orbitMesh && orbitMesh.Raycast(cameraRay, out hitInfo, 1000.0f))
         {

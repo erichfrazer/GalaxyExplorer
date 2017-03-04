@@ -74,9 +74,9 @@ public class OrbitScalePointOfInterest : PointOfInterest
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            SpectatorViewSharingConnector.Instance.SendOnToggleSolarSystemOrbitScale();
+            GE_SpectatorViewManager.Instance.SendOnToggleSolarSystemOrbitScale();
         }
 
         if (audioSource)

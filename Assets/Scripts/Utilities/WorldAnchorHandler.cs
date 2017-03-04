@@ -32,7 +32,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void Update()
     {
-        if (!SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (!GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             // Update will be suspended if the app is suspended or if the device is not tracking
             if (viewLoaderAnchor != null && !viewLoaderAnchorActivelyTracking)
@@ -98,7 +98,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
     #region Callbacks
     private void PlacementControl_ContentHeld()
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             DetachContentFromSpectatorViewAnchor();
         }
@@ -115,7 +115,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
     {
         if (ViewLoader.Instance != null)
         {
-            if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+            if (GE_SpectatorViewManager.SpectatorViewEnabled)
             {
                 AttachContentToSpectatorViewAnchor();
             }
@@ -135,7 +135,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void ResetStarted()
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             DetachContentFromSpectatorViewAnchor();
         }
@@ -151,7 +151,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
 
     private void ResetFinished()
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             AttachContentToSpectatorViewAnchor();
         }

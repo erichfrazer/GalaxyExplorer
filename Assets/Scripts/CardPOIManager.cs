@@ -51,9 +51,9 @@ public class CardPOIManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<CardPOI
 
     private void InputTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind arg1, int tapCount, Ray arg2)
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            SpectatorViewSharingConnector.Instance.SendOnHideAllCards();
+            GE_SpectatorViewManager.Instance.SendOnHideAllCards();
         }
 
         HideAllCards();

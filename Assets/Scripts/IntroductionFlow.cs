@@ -126,7 +126,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
         {
             // If we are using Spectator View, wait until we have everyone ready
             case IntroductionState.IntroductionStateWaitForSpectatorViewParticipants:
-                if (SpectatorViewSharingConnector.Instance.SpectatorViewParticipantsReady)
+                if (GE_SpectatorViewManager.Instance.SpectatorViewParticipantsReady)
                 {
                     StartIntroductionVO();
                 }
@@ -259,7 +259,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
         // If we are using Spectator View, set the application's state to force us to wait
         // until the SpectatorView participants are ready.
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             Debug.Log("Waiting for all Spectator View participants...");
             currentState = IntroductionState.IntroductionStateWaitForSpectatorViewParticipants;
@@ -285,9 +285,9 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
     private void OnTapped(InteractionSourceKind source, int tapCount, Ray headRay)
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            SpectatorViewSharingConnector.Instance.SendOnAdvanceIntroduction();
+            GE_SpectatorViewManager.Instance.SendOnAdvanceIntroduction();
         }
 
         switch (currentState)
@@ -394,9 +394,9 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
             introEarth.TransitionFromIntroToReal();
         }
 
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            SpectatorViewSharingConnector.Instance.SendOnIntroductionEarthPlaced();
+            GE_SpectatorViewManager.Instance.SendOnIntroductionEarthPlaced();
         }
         AdvanceIntroduction();
     }

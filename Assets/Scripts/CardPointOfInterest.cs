@@ -131,9 +131,9 @@ public class CardPointOfInterest : PointOfInterest
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
-        if (SpectatorViewSharingConnector.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            SpectatorViewSharingConnector.Instance.SendOnPointOfInterestCardTapped(this);
+            GE_SpectatorViewManager.Instance.SendOnPointOfInterestCardTapped(this);
         }
 
         // if a card is already up and this was tapped before selection could be faded out, then hide all of the cards (deselection)
