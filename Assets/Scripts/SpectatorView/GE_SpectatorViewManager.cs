@@ -253,7 +253,7 @@ namespace GalaxyExplorer_SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                string poiName = ReadyByteArrayAsString(msg);
+                string poiName = msg.ReadString().ToString();
                 Debug.Log(string.Format("OnPointOfInterestCardTapped: {0}", poiName));
                 CardPointOfInterest[] cards = ViewLoader.Instance.GetComponentsInChildren<CardPointOfInterest>();
                 bool cardFound = false;
@@ -285,7 +285,7 @@ namespace GalaxyExplorer_SpectatorView
 
                 Debug.Log(string.Format("SendOnPointOfInterestCardTapped({0})", poiName));
                 NetworkOutMessage msg = CreateMessage((byte)TestMessageID.PointOfInterestCardTapped);
-                AppendStringAsByteArray(msg, poiName);
+                msg.Write(new XString(poiName));
                 serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
             }
         }
@@ -310,8 +310,8 @@ namespace GalaxyExplorer_SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                string sceneName = ReadyByteArrayAsString(msg);
-                string transitionSourceObjectName = ReadyByteArrayAsString(msg);
+                string sceneName = msg.ReadString().ToString();
+                string transitionSourceObjectName = msg.ReadString().ToString();
                 Debug.Log(string.Format("OnSceneTransitionForward: to {0}; from {1}", sceneName, transitionSourceObjectName));
 
                 // try to find an object with the provided name in the hierarchy
@@ -344,8 +344,8 @@ namespace GalaxyExplorer_SpectatorView
 
                 Debug.Log(string.Format("SendOnSceneTransitionForward({0}, {1}", sceneName, transitionSourceObjectName));
                 NetworkOutMessage msg = CreateMessage((byte)TestMessageID.SceneTransitionForward);
-                AppendStringAsByteArray(msg, sceneName);
-                AppendStringAsByteArray(msg, transitionSourceObjectName);
+                msg.Write(new XString(sceneName));
+                msg.Write(new XString(transitionSourceObjectName));
                 serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
             }
         }
@@ -443,23 +443,8 @@ namespace GalaxyExplorer_SpectatorView
                 messageHandler(msg);
             }
         }
-
-        private void AppendStringAsByteArray(NetworkOutMessage msg, string data)
-        {
-            byte[] bytes = System.Text.Encoding.ASCII.GetBytes(data);
-            long byteSize = bytes.Length;
-            msg.Write(byteSize);
-            msg.WriteArray(bytes, (uint)byteSize);
-        }
-        private string ReadyByteArrayAsString(NetworkInMessage msg)
-        {
-            long byteSize = msg.ReadInt64();
-            byte[] bytes = new byte[(uint)byteSize];
-            msg.ReadArray(bytes, (uint)byteSize);
-
-            return System.Text.Encoding.ASCII.GetString(bytes);
-        }
         #endregion
+
         protected override void OnDestroy()
         {
             base.OnDestroy();
