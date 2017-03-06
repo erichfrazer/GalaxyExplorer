@@ -242,6 +242,10 @@ public class Button : GazeSelectionTarget, IFadeTarget
 
             case ButtonType.Show:
             case ButtonType.Hide:
+                if (GE_SpectatorViewManager.SpectatorViewEnabled)
+                {
+                    GE_SpectatorViewManager.Instance.SendOnToggleTools();
+                }
                 ToolManager.Instance.ToggleTools();
                 break;
         }

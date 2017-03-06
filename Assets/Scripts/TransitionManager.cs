@@ -220,6 +220,11 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
             return;
         }
 
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            GE_SpectatorViewManager.Instance.SendOnResetview();
+        }
+
         if (ResetStarted != null)
         {
             ResetStarted();
@@ -294,17 +299,23 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
 
     private void RotateContentTowardViewer()
     {
-        var contentToCamera = Camera.main.transform.position - ViewLoader.Instance.transform.position;
-        contentToCamera.y = 0;
+        Transform controllingTransform = Camera.main.transform;
+        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            controllingTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+        }
 
-        if (contentToCamera.magnitude <= float.Epsilon)
+        var contentToControllingTransform = controllingTransform.position - ViewLoader.Instance.transform.position;
+        contentToControllingTransform.y = 0;
+
+        if (contentToControllingTransform.magnitude <= float.Epsilon)
         {
             // We can't normalize that
             return;
         }
 
-        contentToCamera.Normalize();
-        var desiredRotation = Quaternion.LookRotation(contentToCamera);
+        contentToControllingTransform.Normalize();
+        var desiredRotation = Quaternion.LookRotation(contentToControllingTransform);
 
         // Rotating the ViewLoader (box) to face the viewer
         StartCoroutine(TransitionContent(

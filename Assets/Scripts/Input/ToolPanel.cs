@@ -63,7 +63,12 @@ public class ToolPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        RecenterTools();
+        Transform controllingTransform = Camera.main.transform;
+        if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            controllingTransform = GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+        }
+        RecenterTools(controllingTransform);
     }
 
     public IEnumerator FadeOut(bool instant)
@@ -85,63 +90,71 @@ public class ToolPanel : MonoBehaviour
 
     private void Update()
     {
-        if (Camera.main != null)
+        if (Camera.main == null)
         {
-            Vector3 desiredRotationVector = Quaternion.AngleAxis(Camera.main.transform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward;
-            Vector3 verticalLook = Quaternion.AngleAxis(Camera.main.transform.rotation.eulerAngles.x, Camera.main.transform.right) * Camera.main.transform.forward;
-
-            float angle = Vector3.Angle(desiredRotationVector, verticalLook);
-
-            // detect if the tool panel is in the user's view, if it isn't, start a timer to
-            //  recenter it so it is directly in front of them when they look back at it
-            if ((IsLowered && (angle < HiddenTopAngle || angle > HiddenBottomAngle)) ||
-                (!IsLowered && (angle < ShownTopAngle || angle > ShownBottomAngle)) || verticalLook.y > 0)
-            {
-                outOfViewTimer += Time.deltaTime;
-
-                if (outOfViewTimer >= OutOfViewRecenterTime)
-                {
-                    RecenterTools();
-                    outOfViewTimer = OutOfViewRecenterTime;
-                }
-            }
-            else
-            {
-                // if the user is looking at the toolbar, reset the timer
-                outOfViewTimer = 0.0f;
-            }
-
-            if (lastRotation == -360.0f) // uninitialized value
-            {
-                RecenterTools();
-            }
-            else
-            {
-                float angleDifference = SignedAngle(lastRotationVector, desiredRotationVector, Vector3.up);
-                float unsignedAngleDifference = Mathf.Abs(angleDifference);
-
-                if (unsignedAngleDifference > RotationDeadZoneAngle)
-                {
-                    lastRotation += Mathf.Sign(angleDifference) * (unsignedAngleDifference - RotationDeadZoneAngle);
-                    lastRotationVector = Quaternion.AngleAxis(lastRotation, Vector3.up) * Vector3.forward;
-                }
-            }
-
-            Quaternion panelRotation = Quaternion.Euler(0.0f, lastRotation, 0.0f);
-            UpdatePosition(panelRotation);
+            return;
         }
+
+        Transform controllingTransform = Camera.main.transform;
+        if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            controllingTransform = GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+        }
+
+        Vector3 desiredRotationVector = Quaternion.AngleAxis(controllingTransform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward;
+        Vector3 verticalLook = Quaternion.AngleAxis(controllingTransform.rotation.eulerAngles.x, controllingTransform.right) * controllingTransform.forward;
+
+        float angle = Vector3.Angle(desiredRotationVector, verticalLook);
+
+        // detect if the tool panel is in the user's view, if it isn't, start a timer to
+        //  recenter it so it is directly in front of them when they look back at it
+        if ((IsLowered && (angle < HiddenTopAngle || angle > HiddenBottomAngle)) ||
+            (!IsLowered && (angle < ShownTopAngle || angle > ShownBottomAngle)) || verticalLook.y > 0)
+        {
+            outOfViewTimer += Time.deltaTime;
+
+            if (outOfViewTimer >= OutOfViewRecenterTime)
+            {
+                RecenterTools(controllingTransform);
+                outOfViewTimer = OutOfViewRecenterTime;
+            }
+        }
+        else
+        {
+            // if the user is looking at the toolbar, reset the timer
+            outOfViewTimer = 0.0f;
+        }
+
+        if (lastRotation == -360.0f) // uninitialized value
+        {
+            RecenterTools(controllingTransform);
+        }
+        else
+        {
+            float angleDifference = SignedAngle(lastRotationVector, desiredRotationVector, Vector3.up);
+            float unsignedAngleDifference = Mathf.Abs(angleDifference);
+
+            if (unsignedAngleDifference > RotationDeadZoneAngle)
+            {
+                lastRotation += Mathf.Sign(angleDifference) * (unsignedAngleDifference - RotationDeadZoneAngle);
+                lastRotationVector = Quaternion.AngleAxis(lastRotation, Vector3.up) * Vector3.forward;
+            }
+        }
+
+        Quaternion panelRotation = Quaternion.Euler(0.0f, lastRotation, 0.0f);
+        UpdatePosition(controllingTransform, panelRotation);
     }
 
-    private void RecenterTools()
+    private void RecenterTools(Transform controllingTransform)
     {
-        float desiredRotation = Camera.main.transform.rotation.eulerAngles.y;
+        float desiredRotation = controllingTransform.rotation.eulerAngles.y;
         lastRotation = desiredRotation;
         lastRotationVector = Quaternion.AngleAxis(desiredRotation, Vector3.up) * Vector3.forward;
     }
 
-    private void UpdatePosition(Quaternion rotation)
+    private void UpdatePosition(Transform controllingTransform, Quaternion rotation)
     {
-        Vector3 targetPos = Camera.main.transform.position + (rotation * (IsLowered ? HiddenViewOffset : ShownViewOffset));
+        Vector3 targetPos = controllingTransform.position + (rotation * (IsLowered ? HiddenViewOffset : ShownViewOffset));
 
         if (Vector3.Distance(targetPos, transform.position) > Epsilon)
         {

@@ -32,6 +32,8 @@ namespace GalaxyExplorer_SpectatorView
             SelectToolbarButton,
             UpdateCurrentContentLocalScale,
             UpdateCurrentContentRotation,
+            ToggleTools,
+            ResetView,
             // Last message (unused)
             Max
         }
@@ -103,6 +105,8 @@ namespace GalaxyExplorer_SpectatorView
             MessageHandlers[TestMessageID.SelectToolbarButton] = OnSelectToolbarButton;
             MessageHandlers[TestMessageID.UpdateCurrentContentLocalScale] = OnUpdateCurrentContentLocalScale;
             MessageHandlers[TestMessageID.UpdateCurrentContentRotation] = OnUpdateCurrentContentRotation;
+            MessageHandlers[TestMessageID.ToggleTools] = OnToggleTools;
+            MessageHandlers[TestMessageID.ResetView] = OnResetView;
 
             StartCoroutine(WaitForSpectatorViewParticipantsAsync());
         }
@@ -296,6 +300,24 @@ namespace GalaxyExplorer_SpectatorView
             }
         }
 
+        private void OnResetView(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnReset");
+                TransitionManager.Instance.ResetView();
+            }
+        }
+
+        public void SendOnResetview()
+        {
+            if (IsHoloLensUser)
+            {
+                Debug.Log("SendOnResetView");
+                SendBasicStateChangeMessage(TestMessageID.ResetView);
+            }
+        }
+
         private void OnSceneTransitionBackward(NetworkInMessage msg)
         {
             Debug.Log("OnSceneTransitionBackward");
@@ -306,7 +328,6 @@ namespace GalaxyExplorer_SpectatorView
         {
             if (IsHoloLensUser)
             {
-
                 Debug.Log("SendOnSceneTransitionBackward");
                 SendBasicStateChangeMessage(TestMessageID.SceneTransitionBackward);
             }
@@ -418,6 +439,24 @@ namespace GalaxyExplorer_SpectatorView
             {
                 Debug.Log("SendOnToggleSolarSystemOrbitScale");
                 SendBasicStateChangeMessage(TestMessageID.ToggleSolarSystemOrbitScale);
+            }
+        }
+
+        private void OnToggleTools(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnToggleTools");
+                ToolManager.Instance.ToggleTools();
+            }
+        }
+
+        public void SendOnToggleTools()
+        {
+            if (IsHoloLensUser)
+            {
+                Debug.Log("OnToggleTools");
+                SendBasicStateChangeMessage(TestMessageID.ToggleTools);
             }
         }
 
