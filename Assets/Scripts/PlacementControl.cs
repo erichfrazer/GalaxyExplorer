@@ -89,7 +89,9 @@ public class PlacementControl : GazeSelectionTarget
     {
         if (GE_SpectatorViewManager.SpectatorViewEnabled && isHolding)
         {
-            GE_SpectatorViewManager.Instance.SendOnUpdateVolumeTransform(contentVolume);
+            GE_SpectatorViewManager.VolumeUpdateFlags flags =
+                GE_SpectatorViewManager.VolumeUpdateFlags.Position | GE_SpectatorViewManager.VolumeUpdateFlags.Rotation;
+            GE_SpectatorViewManager.Instance.SendOnUpdateVolumeTransform(contentVolume, flags);
         }
     }
 
@@ -111,7 +113,9 @@ public class PlacementControl : GazeSelectionTarget
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             // send the final position.
-            GE_SpectatorViewManager.Instance.SendOnUpdateVolumeTransform(contentVolume);
+            GE_SpectatorViewManager.VolumeUpdateFlags flags =
+                GE_SpectatorViewManager.VolumeUpdateFlags.Position | GE_SpectatorViewManager.VolumeUpdateFlags.Rotation;
+            GE_SpectatorViewManager.Instance.SendOnUpdateVolumeTransform(contentVolume, flags);
         }
 
         ToolManager.Instance.UnlockTools();

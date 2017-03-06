@@ -7,41 +7,41 @@ using GalaxyExplorer_SpectatorView.Extensions;
 
 namespace GalaxyExplorer_SpectatorView
 {
-    public enum TestMessageID : byte
-    {
-        // Spectator view messages
-        SpectatorViewPlayersReady = MessageID.UserMessageIDStart,
-        // Introduction flow messages
-        AdvanceIntroduction,
-        IntroductionEarthPlaced,
-        // Application navigation messages
-        SceneTransitionForward,
-        SceneTransitionBackward,
-        ToggleSolarSystemOrbitScale,
-        PointOfInterestCardTapped,
-        HideAllCards,
-        // Movement messages
-        MoveCube,
-        UpdateVolumeTransform,
-        // Last message (unused)
-        Max
-    }
-
     public class GE_SpectatorViewManager : Singleton<GE_SpectatorViewManager>
     {
         public static bool SpectatorViewEnabled = false;
         [HideInInspector]
         public bool SpectatorViewParticipantsReady = false;
 
-        public delegate void MessageCallback(NetworkInMessage msg);
-        public Dictionary<TestMessageID, MessageCallback> MessageHandlers
+        private enum TestMessageID : byte
         {
-            private set;
+            // Spectator view messages
+            SpectatorViewPlayersReady = MessageID.UserMessageIDStart,
+            // Introduction flow messages
+            AdvanceIntroduction,
+            IntroductionEarthPlaced,
+            // Application navigation messages
+            SceneTransitionForward,
+            SceneTransitionBackward,
+            ToggleSolarSystemOrbitScale,
+            PointOfInterestCardTapped,
+            HideAllCards,
+            // Movement messages
+            MoveCube,
+            UpdateVolumeTransform,
+            // Last message (unused)
+            Max
+        }
+
+        private delegate void MessageCallback(NetworkInMessage msg);
+        private Dictionary<TestMessageID, MessageCallback> MessageHandlers
+        {
+            set;
             get;
         }
 
-        NetworkConnection serverConnection;
-        NetworkConnectionAdapter connectionAdapter;
+        private NetworkConnection serverConnection;
+        private NetworkConnectionAdapter connectionAdapter;
 
         private long LocalUserId
         {
@@ -387,31 +387,63 @@ namespace GalaxyExplorer_SpectatorView
             }
         }
 
+        public enum VolumeUpdateFlags : byte
+        {
+            Position = 1,
+            Rotation = 2,
+            Scale = 4
+        }
+
         private void OnUpdateVolumeTransform(NetworkInMessage msg)
         {
             if (msg.ReadInt64() != LocalUserId)
             {
                 //Debug.Log("OnUpdateVolumeTransform");
-                var position = SpectatorView.SV_CustomMessages.Instance.ReadVector3(msg);
-                var rotation = SpectatorView.SV_CustomMessages.Instance.ReadQuaternion(msg);
-                // take the local positionread in and convert it to world space
                 var anchorTrans = SpectatorView.SV_ImportExportAnchorManager.Instance.transform;
-                var worldPos = anchorTrans.TransformPoint(position);
-                TransitionManager.Instance.ViewVolume.transform.position = worldPos;
-                TransitionManager.Instance.ViewVolume.transform.rotation = rotation;
+
+                VolumeUpdateFlags flags = (VolumeUpdateFlags)msg.ReadByte();
+                if ((flags & VolumeUpdateFlags.Position) != 0)
+                {
+                    var position = SpectatorView.SV_CustomMessages.Instance.ReadVector3(msg);
+                    // take the local positionread in and convert it to world space
+                    var worldPos = anchorTrans.TransformPoint(position);
+                    TransitionManager.Instance.ViewVolume.transform.position = worldPos;
+                }
+                if ((flags & VolumeUpdateFlags.Rotation) != 0)
+                {
+                    var rotation = SpectatorView.SV_CustomMessages.Instance.ReadQuaternion(msg);
+                    TransitionManager.Instance.ViewVolume.transform.rotation = rotation;
+                }
+                if ((flags & VolumeUpdateFlags.Scale) != 0)
+                {
+                    var scale = SpectatorView.SV_CustomMessages.Instance.ReadVector3(msg);
+                    TransitionManager.Instance.ViewVolume.transform.localScale = scale;
+                }
             }
         }
 
-        public void SendOnUpdateVolumeTransform(GameObject volume)
+        public void SendOnUpdateVolumeTransform(GameObject volume, VolumeUpdateFlags flags)
         {
             if (SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser())
             {
                 //Debug.Log("SendOnUpdateVolumeTransform");
                 NetworkOutMessage msg = CreateMessage((byte)TestMessageID.UpdateVolumeTransform);
+                msg.Write((byte)flags);
                 // take the world position of the volume and convert it into Anchor's local space
                 var anchorTrans = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;
                 var anchorLocalPos = anchorTrans.InverseTransformPoint(volume.transform.position);
-                SpectatorView.SV_CustomMessages.Instance.AppendTransform(msg, anchorLocalPos, volume.transform.rotation);
+                if ((flags & VolumeUpdateFlags.Position) != 0)
+                {
+                    SpectatorView.SV_CustomMessages.Instance.AppendVector3(msg, anchorLocalPos);
+                }
+                if ((flags & VolumeUpdateFlags.Rotation) != 0)
+                {
+                    SpectatorView.SV_CustomMessages.Instance.AppendQuaternion(msg, volume.transform.rotation);
+                }
+                if ((flags & VolumeUpdateFlags.Scale) != 0)
+                {
+                    SpectatorView.SV_CustomMessages.Instance.AppendVector3(msg, volume.transform.localScale);
+                }
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
             }
         }

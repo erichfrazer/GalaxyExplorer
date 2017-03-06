@@ -489,14 +489,14 @@ namespace SpectatorView
             msg.Write(newTime);
         }
 
-        void AppendVector3(NetworkOutMessage msg, Vector3 vector)
+        public void AppendVector3(NetworkOutMessage msg, Vector3 vector)
         {
             msg.Write(vector.x);
             msg.Write(vector.y);
             msg.Write(vector.z);
         }
 
-        void AppendQuaternion(NetworkOutMessage msg, Quaternion rotation)
+        public void AppendQuaternion(NetworkOutMessage msg, Quaternion rotation)
         {
             msg.Write(rotation.x);
             msg.Write(rotation.y);
