@@ -115,12 +115,12 @@ public class GazeSelection : MonoBehaviour
                             foreach (RaycastHit target in hitTargets)
                             {
                                 Vector3 toTarget = Vector3.Normalize(target.transform.position - gazeRay.origin);
-                                var transformToUse = Camera.main.transform;
+                                var cursorOriginTransform = Camera.main.transform;
                                 if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
                                 {
-                                    transformToUse = GE_SpectatorViewManager.GetHoloLensUserTransform(Camera.main.transform);
+                                    cursorOriginTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(cursorOriginTransform);
                                 }
-                                float dotProduct = Vector3.Dot(transformToUse.forward, toTarget);
+                                float dotProduct = Vector3.Dot(cursorOriginTransform.forward, toTarget);
 
                                 // The dotProduct of our two vectors is equivalent to the cosine
                                 // of the angle between them. If it is larger than the targetSpreadValue

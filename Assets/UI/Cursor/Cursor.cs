@@ -318,25 +318,24 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
             return;
         }
 
+        Transform cursorOriginTransform = cam.transform;
+
         // We do not want the cursor to collide with things inside the near clip plane. shift our gaze position forward by that amount.
-        Ray originRay = new Ray(cam.transform.position + (cam.nearClipPlane * cam.transform.forward), cam.transform.forward);
+        Ray cursorGazeRay = new Ray(cam.transform.position + (cam.nearClipPlane * cam.transform.forward), cam.transform.forward);
+
         if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            originRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(originRay, cam.nearClipPlane);
-            Debug.DrawLine(originRay.origin, originRay.direction * 10f, Color.red);
+            cursorOriginTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(cursorOriginTransform);
+            cursorGazeRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(cursorGazeRay, cam.nearClipPlane);
+            Debug.DrawLine(cursorGazeRay.origin, cursorGazeRay.direction * 10f, Color.red);
         }
+
+        Vector3 desiredPosition = cursorOriginTransform.position + (cursorOriginTransform.forward * defaultCursorDistance);
 
         bool hasHit = false;
         bool hasUIHit = false;
         isOverToolbar = false;
         isColliderGalaxyCardPOI = false;
-
-        Transform raycastOriginTransform = cam.transform;
-        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
-        {
-            raycastOriginTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(raycastOriginTransform);
-        }
-        Vector3 desiredPosition = raycastOriginTransform.position + (raycastOriginTransform.forward * defaultCursorDistance);
 
         foreach (PriorityLayerMask priorityMask in prioritizedCursorMask)
         {
@@ -344,14 +343,14 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
             switch (priorityMask.collisionType)
             {
                 case CursorCollisionSearch.RaycastSearch:
-                    if (Physics.Raycast(originRay, out hitInfo, float.MaxValue, priorityMask.layers))
+                    if (Physics.Raycast(cursorGazeRay, out hitInfo, float.MaxValue, priorityMask.layers))
                     {
                         var collider = hitInfo.collider;
                         isOverToolbar = collider.GetComponent<Button>() != null || collider.GetComponent<Tool>() != null;
                         var poiReference = collider.GetComponentInParent<PointOfInterestReference>();
                         isColliderGalaxyCardPOI = poiReference && poiReference.pointOfInterest && poiReference.pointOfInterest is CardPointOfInterest;
 
-                        desiredPosition = hitInfo.point + (forwardImpactOffset * raycastOriginTransform.forward);
+                        desiredPosition = hitInfo.point + (forwardImpactOffset * cursorOriginTransform.forward);
                         hasHit = true;
                         hasUIHit = true;
                     }
@@ -359,16 +358,20 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
                     break;
 
                 case CursorCollisionSearch.SphereCastSearch:
-                    hasHit = Physics.SphereCast(originRay, visibilitySphereCastRadius, out hitInfo, float.MaxValue, priorityMask.layers);
+                    hasHit = Physics.SphereCast(cursorGazeRay, visibilitySphereCastRadius, out hitInfo, float.MaxValue, priorityMask.layers);
 
                     if (hasHit)
                     {
-                        var camSpaceHit = raycastOriginTransform.InverseTransformPoint(hitInfo.point);
+                        // transpose the hit point from world space into cursorOrigin space
+                        var cursorOriginSpaceHit = cursorOriginTransform.InverseTransformPoint(hitInfo.point);
 
-                        var camSpaceDesiredPosition = raycastOriginTransform.InverseTransformPoint(desiredPosition);
-                        camSpaceDesiredPosition.z = camSpaceHit.z;
+                        // transpose the desired position from world space into cursorOrigin space
+                        var cursorOriginSpaceDesiredPosition = cursorOriginTransform.InverseTransformPoint(desiredPosition);
+                        // take the z component of our raycast hit and apply it to our desired position
+                        cursorOriginSpaceDesiredPosition.z = cursorOriginSpaceHit.z;
 
-                        desiredPosition = raycastOriginTransform.TransformPoint(camSpaceDesiredPosition);
+                        // transpose the desired position back into world space
+                        desiredPosition = cursorOriginTransform.TransformPoint(cursorOriginSpaceDesiredPosition);
                     }
                     break;
             }
@@ -379,17 +382,23 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
             }
         }
 
-        transform.rotation = Quaternion.LookRotation(raycastOriginTransform.forward, raycastOriginTransform.up);
+        // orient the cursor toward's its source
+        transform.rotation = Quaternion.LookRotation(cursorOriginTransform.forward, cursorOriginTransform.up);
 
-        var camSpacePreviousPos = raycastOriginTransform.InverseTransformPoint(previousPosition);
-        var camSpaceDesiredPos = raycastOriginTransform.InverseTransformPoint(desiredPosition);
+        // get the previous and desired positions in cursor source space
+        var cursorOriginSpacePreviousPos = cursorOriginTransform.InverseTransformPoint(previousPosition);
+        var cursorOriginSpaceDesiredPos = cursorOriginTransform.InverseTransformPoint(desiredPosition);
 
-        var camSpaceFinalPos = Vector3.Lerp(camSpacePreviousPos, camSpaceDesiredPos, positionUpdateSpeed * Time.deltaTime);
-        camSpaceFinalPos.z = Mathf.Lerp(camSpacePreviousPos.z, camSpaceDesiredPos.z, (hasUIHit ? positionUpdateSpeed : positionUpdateSpeedWhenNoCollision) * Time.deltaTime);
+        // smoothly move the cursor from its previous position to its final position
+        var cursorOriginSpaceFinalPos = Vector3.Lerp(cursorOriginSpacePreviousPos, cursorOriginSpaceDesiredPos, positionUpdateSpeed * Time.deltaTime);
+        cursorOriginSpaceFinalPos.z = Mathf.Lerp(cursorOriginSpacePreviousPos.z, cursorOriginSpaceDesiredPos.z,
+            (hasUIHit ? positionUpdateSpeed : positionUpdateSpeedWhenNoCollision) * Time.deltaTime);
 
-        transform.position = previousPosition = raycastOriginTransform.TransformPoint(camSpaceFinalPos);
+        // put everything back into world space
+        transform.position = previousPosition = cursorOriginTransform.TransformPoint(cursorOriginSpaceFinalPos);
 
-        var distance = (transform.position - Camera.main.transform.position).magnitude;
+        // scale the cursor based on its distance from its origin
+        var distance = (transform.position - cursorOriginTransform.position).magnitude;
         transform.localScale = Vector3.one * Mathf.Min(targetScale, maxScreenSize * distance);
     }
 
