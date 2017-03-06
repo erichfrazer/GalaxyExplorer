@@ -1,8 +1,10 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using GalaxyExplorer.SpectatorView;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
-using System.Collections.Generic;
 
 public enum ToolType
 {
@@ -290,9 +292,9 @@ public class Tool : GazeSelectionTarget, IFadeTarget
                     Quaternion.LookRotation(upToNewUp * heroView.transform.forward, desiredUp) * Quaternion.Inverse(heroView.transform.rotation) * // hero view rotation delta
                     contentToManipulate.transform.rotation;
                 contentToManipulate.transform.rotation = newRotation;
-                if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+                if (GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentRotation(newRotation);
+                    GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentRotation(newRotation);
                 }
                 break;
 
@@ -319,9 +321,9 @@ public class Tool : GazeSelectionTarget, IFadeTarget
 
                 var newLocalScale = Vector3.one * newScale;
                 contentToManipulate.transform.localScale = newLocalScale;
-                if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+                if (GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentLocalScale(newLocalScale);
+                    GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentLocalScale(newLocalScale);
                 }
                 break;
         }
@@ -377,9 +379,9 @@ public class Tool : GazeSelectionTarget, IFadeTarget
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
-        if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.Instance.SendOnSelectToolbarButton(type);
+            GE_SpectatorViewManager.Instance.SendOnSelectToolbarButton(type);
         }
 
         if (ToolManager.Instance.IsLocked)

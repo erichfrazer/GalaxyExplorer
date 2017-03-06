@@ -1,10 +1,10 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-using System;
+
+using GalaxyExplorer.SpectatorView;
 using HoloToolkit.Unity;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
-using GalaxyExplorer_SpectatorView;
 
 public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<IntroductionFlow>
 {

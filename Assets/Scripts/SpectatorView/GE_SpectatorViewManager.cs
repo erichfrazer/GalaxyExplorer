@@ -1,11 +1,15 @@
-﻿using System.Collections;
+﻿// Copyright Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using GalaxyExplorer.SpectatorView.Extensions;
+using HoloToolkit.Sharing;
+using HoloToolkit.Unity;
+using SpectatorView;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using HoloToolkit.Unity;
-using HoloToolkit.Sharing;
-using GalaxyExplorer_SpectatorView.Extensions;
 
-namespace GalaxyExplorer_SpectatorView
+namespace GalaxyExplorer.SpectatorView
 {
     public class GE_SpectatorViewManager : Singleton<GE_SpectatorViewManager>
     {
@@ -68,11 +72,11 @@ namespace GalaxyExplorer_SpectatorView
             {
                 yield return new WaitForEndOfFrame();
             }
-            while (!SpectatorView.SV_CustomMessages.Instance)
+            while (!SV_CustomMessages.Instance)
             {
                 yield return new WaitForEndOfFrame();
             }
-            while (!SpectatorView.SV_CustomMessages.Instance.Initialized)
+            while (!SV_CustomMessages.Instance.Initialized)
             {
                 yield return new WaitForEndOfFrame();
             }
@@ -113,7 +117,7 @@ namespace GalaxyExplorer_SpectatorView
 
         private IEnumerator WaitForSpectatorViewParticipantsAsync()
         {
-            var hcmInstance = SpectatorView.HolographicCameraManager.Instance;
+            var hcmInstance = HolographicCameraManager.Instance;
 
             // we only do this waiting if we are the SpectatorView camera rig
             if ((hcmInstance != null) && hcmInstance.IsHolographicCameraRig())
@@ -138,18 +142,18 @@ namespace GalaxyExplorer_SpectatorView
 
         public bool IsHoloLensUser
         {
-            get { return SpectatorView.HolographicCameraManager.Instance.IsHoloLensUser(); }
+            get { return HolographicCameraManager.Instance.IsHoloLensUser(); }
         }
 
         public static Transform GetHoloLensUserTransform(Transform defaultTransform)
         {
-            if (!SpectatorViewEnabled || !SpectatorView.HolographicCameraManager.Instance)
+            if (!SpectatorViewEnabled || !HolographicCameraManager.Instance)
             {
                 //Debug.Log("GetHoloLensUserTransform: Returning defaultTransform(1)");
                 return defaultTransform;
             }
 
-            var remoteUser = SpectatorView.HolographicCameraManager.Instance.GetHoloLensUser();
+            var remoteUser = HolographicCameraManager.Instance.GetHoloLensUser();
 
             if (remoteUser == null)
             {
@@ -157,18 +161,18 @@ namespace GalaxyExplorer_SpectatorView
                 return defaultTransform;
             }
 
-            return SpectatorView.SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject.transform;
+            return SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject.transform;
         }
 
         public static Ray GetHoloLensUserGazeRay(Ray defaultRay, float offsetFromOrigin)
         {
-            if (!SpectatorViewEnabled || !SpectatorView.HolographicCameraManager.Instance)
+            if (!SpectatorViewEnabled || !HolographicCameraManager.Instance)
             {
                 //Debug.Log("GetHololensUserGazeRay: Returning defaultRay(1)");
                 return defaultRay;
             }
 
-            var remoteUser = SpectatorView.HolographicCameraManager.Instance.GetHoloLensUser();
+            var remoteUser = HolographicCameraManager.Instance.GetHoloLensUser();
 
             if (remoteUser == null)
             {
@@ -176,7 +180,7 @@ namespace GalaxyExplorer_SpectatorView
                 return defaultRay;
             }
 
-            var remoteHead = SpectatorView.SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject;
+            var remoteHead = SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject;
 
             Ray retRay = new Ray();
 
@@ -414,7 +418,7 @@ namespace GalaxyExplorer_SpectatorView
         public void SendOnSpectatorViewPlayersReady()
         {
             // Only the Spectator View CameraRig can send this message
-            if (SpectatorView.HolographicCameraManager.Instance.IsHolographicCameraRig())
+            if (HolographicCameraManager.Instance.IsHolographicCameraRig())
             {
                 Debug.Log("SendOnSpectatorViewPlayersReady");
                 SendBasicStateChangeMessage(TestMessageID.SpectatorViewPlayersReady);
@@ -427,7 +431,7 @@ namespace GalaxyExplorer_SpectatorView
             if (msg.ReadInt64() != LocalUserId)
             {
                 Debug.Log("OnToggleSolarSystemOrbitalScale");
-                var Anchor = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
+                var Anchor = SV_ImportExportAnchorManager.Instance.gameObject;
                 OrbitScalePointOfInterest ospoi = Anchor.GetComponentInChildren<OrbitScalePointOfInterest>();
                 ospoi.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
             }
@@ -514,7 +518,7 @@ namespace GalaxyExplorer_SpectatorView
             if (msg.ReadInt64() != LocalUserId)
             {
                 //Debug.Log("OnUpdateVolumeTransform");
-                var anchorTrans = SpectatorView.SV_ImportExportAnchorManager.Instance.transform;
+                var anchorTrans = SV_ImportExportAnchorManager.Instance.transform;
 
                 VolumeUpdateFlags flags = (VolumeUpdateFlags)msg.ReadByte();
                 if ((flags & VolumeUpdateFlags.Position) != 0)
@@ -545,7 +549,7 @@ namespace GalaxyExplorer_SpectatorView
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateVolumeTransform);
                 msg.Write((byte)flags);
                 // take the world position of the volume and convert it into Anchor's local space
-                var anchorTrans = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;
+                var anchorTrans = SV_ImportExportAnchorManager.Instance.gameObject.transform;
                 var anchorLocalPos = anchorTrans.InverseTransformPoint(volume.transform.position);
                 if ((flags & VolumeUpdateFlags.Position) != 0)
                 {
@@ -603,7 +607,7 @@ namespace GalaxyExplorer_SpectatorView
     }
 }
 
-namespace GalaxyExplorer_SpectatorView.Extensions
+namespace GalaxyExplorer.SpectatorView.Extensions
 {
     public static class NetworkOutMessageExt
     {
@@ -636,14 +640,14 @@ namespace GalaxyExplorer_SpectatorView.Extensions
         }
     }
 
-    public static class HolographicCameraManager
+    public static class HolographicCameraManagerExt
     {
-        public static bool IsHolographicCameraRig(this SpectatorView.HolographicCameraManager hcm)
+        public static bool IsHolographicCameraRig(this HolographicCameraManager hcm)
         {
             return hcm.localIPs.Contains(hcm.HolographicCameraIP.Trim());
         }
 
-        public static bool IsHoloLensUser(this SpectatorView.HolographicCameraManager hcm)
+        public static bool IsHoloLensUser(this HolographicCameraManager hcm)
         {
             if (holoLensUser == null)
             {
@@ -657,7 +661,7 @@ namespace GalaxyExplorer_SpectatorView.Extensions
         }
 
         private static User holoLensUser = null;
-        public static User GetHoloLensUser(this SpectatorView.HolographicCameraManager hcm)
+        public static User GetHoloLensUser(this HolographicCameraManager hcm)
         {
             // if we've already determined the HoloLens user, return that cached value.
             if (holoLensUser != null)
@@ -696,7 +700,7 @@ namespace GalaxyExplorer_SpectatorView.Extensions
                 }
 #else
                 // we aren't running as the editor, check to see if we are the Spectator View camera rig
-                if (SpectatorView.HolographicCameraManager.Instance.IsHolographicCameraRig())
+                if (HolographicCameraManager.Instance.IsHolographicCameraRig())
                 {
                     // if we are, we can skip the Local User because that's us
                     if (userId == SharingStage.Instance.Manager.GetLocalUser().GetID())

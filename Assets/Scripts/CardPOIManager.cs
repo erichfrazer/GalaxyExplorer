@@ -1,7 +1,8 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using GalaxyExplorer.SpectatorView;
 using UnityEngine;
-using GalaxyExplorer_SpectatorView;
 
 public class CardPOIManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<CardPOIManager>
 {

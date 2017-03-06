@@ -1,31 +1,37 @@
-﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.Collections;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 using HoloToolkit.Unity;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class SpectatorViewLoader : Singleton<SpectatorViewLoader>
+namespace GalaxyExplorer.SpectatorView
 {
-    private string SpectatorView = "SpectatorView";
-    [HideInInspector]
-    public bool SpectatorViewLoaded = false;
-
-    protected override void Awake()
+    public class SpectatorViewLoader : Singleton<SpectatorViewLoader>
     {
-        base.Awake();
-        StartCoroutine(LoadSpectatorViewAsync());
-    }
+        private string SpectatorView = "SpectatorView";
+        [HideInInspector]
+        public bool SpectatorViewLoaded = false;
 
-    private IEnumerator LoadSpectatorViewAsync()
-    {
-        // skip a frame
-        yield return null;
-
-        var loadSpectatorViewOp = SceneManager.LoadSceneAsync(SpectatorView, LoadSceneMode.Additive);
-        while (!loadSpectatorViewOp.isDone)
+        protected override void Awake()
         {
-            yield return new WaitForEndOfFrame();
+            base.Awake();
+            StartCoroutine(LoadSpectatorViewAsync());
         }
 
-        SpectatorViewLoaded = true;
+        private IEnumerator LoadSpectatorViewAsync()
+        {
+            // skip a frame
+            yield return null;
+
+            var loadSpectatorViewOp = SceneManager.LoadSceneAsync(SpectatorView, LoadSceneMode.Additive);
+            while (!loadSpectatorViewOp.isDone)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+
+            SpectatorViewLoaded = true;
+        }
     }
 }

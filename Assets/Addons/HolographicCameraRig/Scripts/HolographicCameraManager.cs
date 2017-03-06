@@ -1,15 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using HoloToolkit.Unity;
 using HoloToolkit.Unity.SpatialMapping;
 using System;
-using System.IO;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Runtime.InteropServices;
+using UnityEngine;
 #if NETFX_CORE
 using Windows.Networking;
 using Windows.Networking.Connectivity;

@@ -1,9 +1,10 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using GalaxyExplorer.SpectatorView;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
-using System.Collections;
-using GalaxyExplorer_SpectatorView;
 
 // The card point of interest can be selected, which will animate the text next to the description card. This is complicated because
 // the point of interest is a parent in the POI hierarchy to the description text and fading out all of the POIs on selection would

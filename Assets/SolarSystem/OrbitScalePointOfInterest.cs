@@ -1,11 +1,12 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using GalaxyExplorer.SpectatorView;
 using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.VR.WSA.Input;
-using GalaxyExplorer_SpectatorView;
 
 public class OrbitScalePointOfInterest : PointOfInterest
 {

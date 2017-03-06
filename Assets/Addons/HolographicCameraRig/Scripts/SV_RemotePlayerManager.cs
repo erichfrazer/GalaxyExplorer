@@ -1,14 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using UnityEngine;
-using HoloToolkit.Unity;
-using HoloToolkit.Unity.SpatialMapping;
 using HoloToolkit.Sharing;
+using HoloToolkit.Unity.SpatialMapping;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System;
+using UnityEngine;
+#if !UNITY_EDITOR
 using UnityEngine.VR.WSA;
+#endif
 
 namespace SpectatorView
 {

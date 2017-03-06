@@ -1,5 +1,7 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using GalaxyExplorer.SpectatorView;
 using System.Collections;
 using UnityEngine;
 
@@ -52,8 +54,13 @@ public class ToolPanel : MonoBehaviour
 
     private ToolsFader toolsFader;
 
+    private bool runningInEditor = false;
+
     private void Awake()
     {
+#if UNITY_EDITOR
+        runningInEditor = true;
+#endif
         var fadersGo = new GameObject("Tools Fader");
         fadersGo.transform.SetParent(transform, worldPositionStays: false);
         toolsFader = fadersGo.AddComponent<ToolsFader>();
@@ -64,9 +71,9 @@ public class ToolPanel : MonoBehaviour
     private void OnEnable()
     {
         Transform controllingTransform = Camera.main.transform;
-        if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            controllingTransform = GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+            controllingTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
         }
         RecenterTools(controllingTransform);
     }
@@ -96,9 +103,9 @@ public class ToolPanel : MonoBehaviour
         }
 
         Transform controllingTransform = Camera.main.transform;
-        if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            controllingTransform = GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+            controllingTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
         }
 
         Vector3 desiredRotationVector = Quaternion.AngleAxis(controllingTransform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward;

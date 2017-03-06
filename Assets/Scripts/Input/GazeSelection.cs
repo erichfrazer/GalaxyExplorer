@@ -1,8 +1,9 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using GalaxyExplorer.SpectatorView;
 using System.Collections.Generic;
 using UnityEngine;
-using GalaxyExplorer_SpectatorView;
 
 public class GazeSelection : MonoBehaviour
 {
