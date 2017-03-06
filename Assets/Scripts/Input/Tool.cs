@@ -286,9 +286,14 @@ public class Tool : GazeSelectionTarget, IFadeTarget
                 var desiredUp = Vector3.Slerp(heroView.transform.up, targetUp, Mathf.Clamp01(Time.deltaTime * Mathf.Abs(y) * currentRotationSpeed));
                 var upToNewUp = Quaternion.FromToRotation(heroView.transform.up, desiredUp);
 
-                contentToManipulate.transform.rotation =
+                var newRotation = 
                     Quaternion.LookRotation(upToNewUp * heroView.transform.forward, desiredUp) * Quaternion.Inverse(heroView.transform.rotation) * // hero view rotation delta
                     contentToManipulate.transform.rotation;
+                contentToManipulate.transform.rotation = newRotation;
+                if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+                {
+                    GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentRotation(newRotation);
+                }
                 break;
 
             case ToolType.Zoom:
@@ -312,7 +317,12 @@ public class Tool : GazeSelectionTarget, IFadeTarget
                     newScale = ToolManager.Instance.LargestZoom;
                 }
 
-                contentToManipulate.transform.localScale = new Vector3(newScale, newScale, newScale);
+                var newLocalScale = Vector3.one * newScale;
+                contentToManipulate.transform.localScale = newLocalScale;
+                if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+                {
+                    GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentLocalScale(newLocalScale);
+                }
                 break;
         }
     }
@@ -367,6 +377,11 @@ public class Tool : GazeSelectionTarget, IFadeTarget
 
     public override bool OnTapped(InteractionSourceKind source, int tapCount, Ray ray)
     {
+        if (GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            GalaxyExplorer_SpectatorView.GE_SpectatorViewManager.Instance.SendOnSelectToolbarButton(type);
+        }
+
         if (ToolManager.Instance.IsLocked)
         {
             return false;
