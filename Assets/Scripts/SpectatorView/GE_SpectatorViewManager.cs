@@ -520,7 +520,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnUpdateCurrentContentRotation");
+                //Debug.Log("OnUpdateCurrentContentRotation");
                 var newRot = msg.ReadQuaternion();
                 ViewLoader.Instance.GetCurrentContent().transform.rotation = newRot;
             }
@@ -530,7 +530,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendUpdateCurrentContentRotation");
+                //Debug.Log("SendUpdateCurrentContentRotation");
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCurrentContentRotation);
                 msg.Write(rot);
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
@@ -541,7 +541,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnUpdateCurrentContentLocalScale");
+                //Debug.Log("OnUpdateCurrentContentLocalScale");
                 var newScale = msg.ReadVector3();
                 ViewLoader.Instance.GetCurrentContent().transform.localScale = newScale;
             }
@@ -551,7 +551,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendUpdateCurrentContentLocalScale");
+                //Debug.Log("SendUpdateCurrentContentLocalScale");
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCurrentContentLocalScale);
                 msg.Write(scale);
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
@@ -576,7 +576,7 @@ namespace GalaxyExplorer.SpectatorView
                 if ((flags & VolumeUpdateFlags.Position) != 0)
                 {
                     var position = msg.ReadVector3();
-                    // take the local positionread in and convert it to world space
+                    // take the local position read in and convert it to world space
                     var worldPos = anchorTrans.TransformPoint(position);
                     TransitionManager.Instance.ViewVolume.transform.position = worldPos;
                 }
