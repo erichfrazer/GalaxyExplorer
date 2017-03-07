@@ -235,7 +235,7 @@ public class Button : GazeSelectionTarget, IFadeTarget
             case ButtonType.MoveCube:
                 if (GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    GE_SpectatorViewManager.Instance.SendOnMoveCube();
+                    GE_SpectatorViewManager.Instance.SendMoveCube();
                 }
                 ToolManager.Instance.LockTools();
                 cubeToMove.TogglePinnedState();
@@ -245,7 +245,7 @@ public class Button : GazeSelectionTarget, IFadeTarget
             case ButtonType.Hide:
                 if (GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    GE_SpectatorViewManager.Instance.SendOnToggleTools();
+                    GE_SpectatorViewManager.Instance.SendToggleTools();
                 }
                 ToolManager.Instance.ToggleTools();
                 break;

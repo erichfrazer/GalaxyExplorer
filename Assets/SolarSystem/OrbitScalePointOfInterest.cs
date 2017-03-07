@@ -77,7 +77,7 @@ public class OrbitScalePointOfInterest : PointOfInterest
     {
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnToggleSolarSystemOrbitScale();
+            GE_SpectatorViewManager.Instance.SendToggleSolarSystemOrbitScale();
         }
 
         if (audioSource)

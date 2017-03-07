@@ -294,7 +294,7 @@ public class Tool : GazeSelectionTarget, IFadeTarget
                 contentToManipulate.transform.rotation = newRotation;
                 if (GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentRotation(newRotation);
+                    GE_SpectatorViewManager.Instance.SendUpdateCurrentContentRotation(newRotation);
                 }
                 break;
 
@@ -323,7 +323,7 @@ public class Tool : GazeSelectionTarget, IFadeTarget
                 contentToManipulate.transform.localScale = newLocalScale;
                 if (GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    GE_SpectatorViewManager.Instance.SendOnUpdateCurrentContentLocalScale(newLocalScale);
+                    GE_SpectatorViewManager.Instance.SendUpdateCurrentContentLocalScale(newLocalScale);
                 }
                 break;
         }
@@ -381,7 +381,7 @@ public class Tool : GazeSelectionTarget, IFadeTarget
     {
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnSelectToolbarButton(type);
+            GE_SpectatorViewManager.Instance.SendSelectToolbarButton(type);
         }
 
         if (ToolManager.Instance.IsLocked)

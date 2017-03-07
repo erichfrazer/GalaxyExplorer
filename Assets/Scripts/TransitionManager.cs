@@ -223,7 +223,7 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
 
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnResetview();
+            GE_SpectatorViewManager.Instance.SendResetview();
         }
 
         if (ResetStarted != null)
@@ -492,7 +492,7 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
 
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnSceneTransitionBackward();
+            GE_SpectatorViewManager.Instance.SendSceneTransitionBackward();
         }
 
         inTransition = true;
@@ -807,7 +807,7 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
 
         if (sourceObject && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnSceneTransitionForward(sceneName, sourceObject);
+            GE_SpectatorViewManager.Instance.SendSceneTransitionForward(sceneName, sourceObject);
         }
 
         inTransition = true;

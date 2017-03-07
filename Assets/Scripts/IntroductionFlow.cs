@@ -287,7 +287,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
     {
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnAdvanceIntroduction();
+            GE_SpectatorViewManager.Instance.SendAdvanceIntroduction();
         }
 
         switch (currentState)
@@ -396,7 +396,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
 
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnIntroductionEarthPlaced();
+            GE_SpectatorViewManager.Instance.SendIntroductionEarthPlaced();
         }
         AdvanceIntroduction();
     }

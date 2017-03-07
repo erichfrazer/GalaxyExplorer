@@ -134,7 +134,7 @@ public class CardPointOfInterest : PointOfInterest
     {
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            GE_SpectatorViewManager.Instance.SendOnPointOfInterestCardTapped(this);
+            GE_SpectatorViewManager.Instance.SendPointOfInterestCardTapped(this);
         }
 
         // if a card is already up and this was tapped before selection could be faded out, then hide all of the cards (deselection)

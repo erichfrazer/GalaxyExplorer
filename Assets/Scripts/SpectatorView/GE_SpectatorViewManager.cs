@@ -136,7 +136,7 @@ namespace GalaxyExplorer.SpectatorView
                     yield return new WaitForSeconds(1);
                 }
 
-                SendOnSpectatorViewPlayersReady();
+                SendSpectatorViewPlayersReady();
             }
         }
 
@@ -145,39 +145,39 @@ namespace GalaxyExplorer.SpectatorView
             get { return HolographicCameraManager.Instance.IsHoloLensUser(); }
         }
 
-        public static Transform GetHoloLensUserTransform(Transform defaultTransform)
+        public static Transform GetHoloLensUserTransform(Transform fallbackTransform)
         {
             if (!SpectatorViewEnabled || !HolographicCameraManager.Instance)
             {
-                //Debug.Log("GetHoloLensUserTransform: Returning defaultTransform(1)");
-                return defaultTransform;
+                //Debug.Log("GetHoloLensUserTransform: Returning fallbackTransform(1)");
+                return fallbackTransform;
             }
 
             var remoteUser = HolographicCameraManager.Instance.GetHoloLensUser();
 
             if (remoteUser == null)
             {
-                //Debug.Log("GetHoloLensUserTransform: Returning defaultTransform(2)");
-                return defaultTransform;
+                //Debug.Log("GetHoloLensUserTransform: Returning fallbackTransform(2)");
+                return fallbackTransform;
             }
 
             return SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject.transform;
         }
 
-        public static Ray GetHoloLensUserGazeRay(Ray defaultRay, float offsetFromOrigin)
+        public static Ray GetHoloLensUserGazeRay(Ray fallbackRay, float offsetFromOrigin)
         {
             if (!SpectatorViewEnabled || !HolographicCameraManager.Instance)
             {
-                //Debug.Log("GetHololensUserGazeRay: Returning defaultRay(1)");
-                return defaultRay;
+                //Debug.Log("GetHololensUserGazeRay: Returning fallbackRay(1)");
+                return fallbackRay;
             }
 
             var remoteUser = HolographicCameraManager.Instance.GetHoloLensUser();
 
             if (remoteUser == null)
             {
-                //Debug.Log("GetHololensUserGazeRay: Returning defaultRay(2)");
-                return defaultRay;
+                //Debug.Log("GetHololensUserGazeRay: Returning fallbackRay(2)");
+                return fallbackRay;
             }
 
             var remoteHead = SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject;
@@ -200,11 +200,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnAdvanceIntroduction()
+        public void SendAdvanceIntroduction()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnAdvanceIntroduction");
+                Debug.Log("SendAdvanceIntroduction");
                 // due to timing issues, whe might need to eventually send the
                 // current Introduction Flow state
                 SendBasicStateChangeMessage(TestMessageID.AdvanceIntroduction);
@@ -220,11 +220,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnHideAllCards()
+        public void SendHideAllCards()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnHideAllCards");
+                Debug.Log("SendHideAllCards");
                 SendBasicStateChangeMessage(TestMessageID.HideAllCards);
             }
         }
@@ -235,11 +235,11 @@ namespace GalaxyExplorer.SpectatorView
             TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
         }
 
-        public void SendOnIntroductionEarthPlaced()
+        public void SendIntroductionEarthPlaced()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnIntroductionEarthPlaced");
+                Debug.Log("SendIntroductionEarthPlaced");
                 SendBasicStateChangeMessage(TestMessageID.IntroductionEarthPlaced);
             }
         }
@@ -254,11 +254,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnMoveCube()
+        public void SendMoveCube()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnMoveCube");
+                Debug.Log("SendMoveCube");
                 SendBasicStateChangeMessage(TestMessageID.MoveCube);
             }
         }
@@ -289,7 +289,7 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnPointOfInterestCardTapped(CardPointOfInterest card)
+        public void SendPointOfInterestCardTapped(CardPointOfInterest card)
         {
             if (IsHoloLensUser)
             {
@@ -297,7 +297,7 @@ namespace GalaxyExplorer.SpectatorView
                 var cardParentParent = cardParent.gameObject.transform.parent;
                 var poiName = cardParentParent.name;
 
-                Debug.Log(string.Format("SendOnPointOfInterestCardTapped({0})", poiName));
+                Debug.Log(string.Format("SendPointOfInterestCardTapped({0})", poiName));
                 NetworkOutMessage msg = CreateMessage(TestMessageID.PointOfInterestCardTapped);
                 msg.Write(new XString(poiName));
                 serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
@@ -313,11 +313,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnResetview()
+        public void SendResetview()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnResetView");
+                Debug.Log("SendResetView");
                 SendBasicStateChangeMessage(TestMessageID.ResetView);
             }
         }
@@ -328,11 +328,11 @@ namespace GalaxyExplorer.SpectatorView
             ViewLoader.Instance.GoBack();
         }
 
-        public void SendOnSceneTransitionBackward()
+        public void SendSceneTransitionBackward()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnSceneTransitionBackward");
+                Debug.Log("SendSceneTransitionBackward");
                 SendBasicStateChangeMessage(TestMessageID.SceneTransitionBackward);
             }
         }
@@ -363,7 +363,7 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnSceneTransitionForward(string sceneName, GameObject transitionSourceObject)
+        public void SendSceneTransitionForward(string sceneName, GameObject transitionSourceObject)
         {
             if (IsHoloLensUser)
             {
@@ -373,7 +373,7 @@ namespace GalaxyExplorer.SpectatorView
                     transitionSourceObjectName = transitionSourceObject.name;
                 }
 
-                Debug.Log(string.Format("SendOnSceneTransitionForward({0}, {1}", sceneName, transitionSourceObjectName));
+                Debug.Log(string.Format("SendSceneTransitionForward({0}, {1}", sceneName, transitionSourceObjectName));
                 NetworkOutMessage msg = CreateMessage(TestMessageID.SceneTransitionForward);
                 msg.Write(new XString(sceneName));
                 msg.Write(new XString(transitionSourceObjectName));
@@ -398,11 +398,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnSelectToolbarButton(ToolType tool)
+        public void SendSelectToolbarButton(ToolType tool)
         {
             if (IsHoloLensUser)
             {
-                Debug.Log(string.Format("SendOnToolbarButton({0})", tool.ToString()));
+                Debug.Log(string.Format("SendToolbarButton({0})", tool.ToString()));
                 NetworkOutMessage msg = CreateMessage(TestMessageID.SelectToolbarButton);
                 msg.Write((byte)tool);
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
@@ -415,12 +415,12 @@ namespace GalaxyExplorer.SpectatorView
             SpectatorViewParticipantsReady = true;
         }
 
-        public void SendOnSpectatorViewPlayersReady()
+        public void SendSpectatorViewPlayersReady()
         {
-            // Only the Spectator View CameraRig can send this message
+            // Only the Spectator View CameraRig should send this message
             if (HolographicCameraManager.Instance.IsHolographicCameraRig())
             {
-                Debug.Log("SendOnSpectatorViewPlayersReady");
+                Debug.Log("SendSpectatorViewPlayersReady");
                 SendBasicStateChangeMessage(TestMessageID.SpectatorViewPlayersReady);
                 SpectatorViewParticipantsReady = true;
             }
@@ -437,11 +437,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnToggleSolarSystemOrbitScale()
+        public void SendToggleSolarSystemOrbitScale()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnToggleSolarSystemOrbitScale");
+                Debug.Log("SendToggleSolarSystemOrbitScale");
                 SendBasicStateChangeMessage(TestMessageID.ToggleSolarSystemOrbitScale);
             }
         }
@@ -455,11 +455,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnToggleTools()
+        public void SendToggleTools()
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("OnToggleTools");
+                Debug.Log("SendToggleTools");
                 SendBasicStateChangeMessage(TestMessageID.ToggleTools);
             }
         }
@@ -474,11 +474,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnUpdateCurrentContentRotation(Quaternion rot)
+        public void SendUpdateCurrentContentRotation(Quaternion rot)
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnUpdateCurrentContentRotation");
+                Debug.Log("SendUpdateCurrentContentRotation");
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCurrentContentRotation);
                 msg.Write(rot);
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
@@ -495,11 +495,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnUpdateCurrentContentLocalScale(Vector3 scale)
+        public void SendUpdateCurrentContentLocalScale(Vector3 scale)
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendOnUpdateCurrentContentLocalScale");
+                Debug.Log("SendUpdateCurrentContentLocalScale");
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCurrentContentLocalScale);
                 msg.Write(scale);
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
@@ -541,11 +541,11 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendOnUpdateVolumeTransform(GameObject volume, VolumeUpdateFlags flags)
+        public void SendUpdateVolumeTransform(GameObject volume, VolumeUpdateFlags flags)
         {
             if (IsHoloLensUser)
             {
-                //Debug.Log("SendOnUpdateVolumeTransform");
+                //Debug.Log("SendUpdateVolumeTransform");
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateVolumeTransform);
                 msg.Write((byte)flags);
                 // take the world position of the volume and convert it into Anchor's local space
