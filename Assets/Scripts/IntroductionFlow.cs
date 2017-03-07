@@ -263,6 +263,7 @@ public class IntroductionFlow : GalaxyExplorer.HoloToolkit.Unity.Singleton<Intro
         {
             Debug.Log("Waiting for all Spectator View participants...");
             currentState = IntroductionState.IntroductionStateWaitForSpectatorViewParticipants;
+            StartCoroutine(GE_SpectatorViewManager.Instance.WaitForAnchorToBeLocated());
         }
         else
         {

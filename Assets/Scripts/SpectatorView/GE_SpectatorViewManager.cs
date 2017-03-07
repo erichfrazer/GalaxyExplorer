@@ -8,6 +8,7 @@ using SpectatorView;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.VR.WSA;
 
 namespace GalaxyExplorer.SpectatorView
 {
@@ -21,6 +22,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             // Spectator view messages
             SpectatorViewPlayersReady = MessageID.UserMessageIDStart,
+            AnchorLocated,
             // Introduction flow messages
             AdvanceIntroduction,
             IntroductionEarthPlaced,
@@ -43,11 +45,9 @@ namespace GalaxyExplorer.SpectatorView
         }
 
         private delegate void MessageCallback(NetworkInMessage msg);
-        private Dictionary<TestMessageID, MessageCallback> MessageHandlers
-        {
-            set;
-            get;
-        }
+        private Dictionary<TestMessageID, MessageCallback> MessageHandlers { set; get; }
+
+        private Dictionary<long, bool> LocatedAnchors { set; get; }
 
         private NetworkConnection serverConnection;
         private NetworkConnectionAdapter connectionAdapter;
@@ -61,6 +61,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             base.Awake();
             MessageHandlers = new Dictionary<TestMessageID, MessageCallback>();
+            LocatedAnchors = new Dictionary<long, bool>();
             SpectatorViewEnabled = true;
         }
 
@@ -97,6 +98,7 @@ namespace GalaxyExplorer.SpectatorView
             }
 
             MessageHandlers[TestMessageID.SpectatorViewPlayersReady] = OnSpectatorViewPlayersReady;
+            MessageHandlers[TestMessageID.AnchorLocated] = OnAnchorLocated;
             MessageHandlers[TestMessageID.AdvanceIntroduction] = OnAdvanceIntroduction;
             MessageHandlers[TestMessageID.IntroductionEarthPlaced] = OnIntroductionEarthPlaced;
             MessageHandlers[TestMessageID.SceneTransitionForward] = OnSceneTransitionForward;
@@ -122,6 +124,7 @@ namespace GalaxyExplorer.SpectatorView
             // we only do this waiting if we are the SpectatorView camera rig
             if ((hcmInstance != null) && hcmInstance.IsHolographicCameraRig())
             {
+                // wait until we have three players (SpectatorView rig, editor and HoloLens user)
                 while (true)
                 {
                     if (SharingSessionTracker.Instance.UserIds.Count >= 3)
@@ -136,9 +139,41 @@ namespace GalaxyExplorer.SpectatorView
                     yield return new WaitForSeconds(1);
                 }
 
+                // wait until all three anchors have been located for the SpectatorView rig and HoloLens
+                while (true)
+                {
+                    if (LocatedAnchors.Count >= 2)
+                    {
+                        Debug.Log("### All anchors reported as located");
+                        break;
+                    }
+                    yield return new WaitForSeconds(1);
+                }
+
+                // now we are ready!
                 SendSpectatorViewPlayersReady();
             }
         }
+        
+        public IEnumerator WaitForAnchorToBeLocated()
+        {
+            // wait until we have an Anchor
+            WorldAnchor anchor = SV_ImportExportAnchorManager.Instance.GetComponent<WorldAnchor>();
+            while (anchor == null)
+            {
+                yield return null;
+                anchor = SV_ImportExportAnchorManager.Instance.GetComponent<WorldAnchor>();
+            }
+
+            // wait until that anchor is located
+            while (!anchor.isLocated)
+            {
+                yield return null;
+            }
+
+            SendAnchorLocated();
+        }
+
 
         public bool IsHoloLensUser
         {
@@ -209,6 +244,23 @@ namespace GalaxyExplorer.SpectatorView
                 // current Introduction Flow state
                 SendBasicStateChangeMessage(TestMessageID.AdvanceIntroduction);
             }
+        }
+
+        private void OnAnchorLocated(NetworkInMessage msg)
+        {
+            long messageSender = msg.ReadInt64();
+            if (messageSender != LocalUserId)
+            {
+                Debug.Log(string.Format("OnAnchorLocated for user {0}", messageSender));
+                LocatedAnchors[messageSender] = true;
+            }
+        }
+
+        private void SendAnchorLocated()
+        {
+            Debug.Log("SendAnchorLocated");
+            LocatedAnchors[LocalUserId] = true;
+            SendBasicStateChangeMessage(TestMessageID.AnchorLocated);
         }
 
         private void OnHideAllCards(NetworkInMessage msg)
