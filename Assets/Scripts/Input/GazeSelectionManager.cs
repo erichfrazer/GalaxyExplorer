@@ -51,7 +51,7 @@ public class GazeSelectionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<G
                 : null;
 
             // reset our unselected time
-            if (desiredTarget == selectedTarget)
+            if (desiredTarget == SelectedTarget)
             {
                 timeUnselected = 0.0f;
             }
