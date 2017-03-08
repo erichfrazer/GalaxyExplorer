@@ -274,9 +274,9 @@ public class InputRouter : GalaxyExplorer.HoloToolkit.Unity.Singleton<InputRoute
                     handled = placementControl.OnTapped(source, tapCount, ray);
                     if (ToolSounds.Instance)
                     {
-                    ToolSounds.Instance.PlaySelectSound();
+                        ToolSounds.Instance.PlaySelectSound();
+                    }
                 }
-            }
             }
 
             if (!handled && InputTapped != null)

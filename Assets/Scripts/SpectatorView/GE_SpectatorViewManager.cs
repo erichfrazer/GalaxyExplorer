@@ -34,6 +34,7 @@ namespace GalaxyExplorer.SpectatorView
             HideAllCards,
             // Tool messages
             MoveCube,
+            ContentPlaced,
             UpdateVolumeTransform,
             SelectToolbarButton,
             UpdateCurrentContentLocalScale,
@@ -107,6 +108,7 @@ namespace GalaxyExplorer.SpectatorView
             MessageHandlers[TestMessageID.PointOfInterestCardTapped] = OnPointOfInterestCardTapped;
             MessageHandlers[TestMessageID.HideAllCards] = OnHideAllCards;
             MessageHandlers[TestMessageID.MoveCube] = OnMoveCube;
+            MessageHandlers[TestMessageID.ContentPlaced] = OnContentPlaced;
             MessageHandlers[TestMessageID.UpdateVolumeTransform] = OnUpdateVolumeTransform;
             MessageHandlers[TestMessageID.SelectToolbarButton] = OnSelectToolbarButton;
             MessageHandlers[TestMessageID.UpdateCurrentContentLocalScale] = OnUpdateCurrentContentLocalScale;
@@ -263,6 +265,32 @@ namespace GalaxyExplorer.SpectatorView
             SendBasicStateChangeMessage(TestMessageID.AnchorLocated);
         }
 
+        private void OnContentPlaced(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                Debug.Log("OnContentPlaced");
+                PlacementControl pc = TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>();
+                if (pc)
+                {
+                    pc.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
+                }
+            }
+        }
+
+        public void SendContentPlaced()
+        {
+            if (IsHoloLensUser)
+            {
+                Debug.Log("OnContentPlaced");
+                // send the final position of the volume
+                GE_SpectatorViewManager.VolumeUpdateFlags flags =
+                    GE_SpectatorViewManager.VolumeUpdateFlags.Position | GE_SpectatorViewManager.VolumeUpdateFlags.Rotation;
+                SendUpdateVolumeTransform(TransitionManager.Instance.ViewVolume, flags);
+                SendBasicStateChangeMessage(TestMessageID.ContentPlaced);
+            }
+        }
+
         private void OnHideAllCards(NetworkInMessage msg)
         {
             if (msg.ReadInt64() != LocalUserId)
@@ -284,7 +312,8 @@ namespace GalaxyExplorer.SpectatorView
         private void OnIntroductionEarthPlaced(NetworkInMessage msg)
         {
             Debug.Log("OnEarthPlaced");
-            TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
+            ToolManager.Instance.UnlockTools();
+            Cursor.Instance.ClearToolState();
         }
 
         public void SendIntroductionEarthPlaced()
