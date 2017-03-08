@@ -32,6 +32,8 @@ namespace GalaxyExplorer.SpectatorView
             ToggleSolarSystemOrbitScale,
             PointOfInterestCardTapped,
             HideAllCards,
+            // UI messages
+            UpdateCursorTransform,
             // Tool messages
             MoveCube,
             ContentPlaced,
@@ -107,6 +109,7 @@ namespace GalaxyExplorer.SpectatorView
             MessageHandlers[TestMessageID.ToggleSolarSystemOrbitScale] = OnToggleSolarSystemOrbitScale;
             MessageHandlers[TestMessageID.PointOfInterestCardTapped] = OnPointOfInterestCardTapped;
             MessageHandlers[TestMessageID.HideAllCards] = OnHideAllCards;
+            MessageHandlers[TestMessageID.UpdateCursorTransform] = OnUpdateCursorTransform;
             MessageHandlers[TestMessageID.MoveCube] = OnMoveCube;
             MessageHandlers[TestMessageID.ContentPlaced] = OnContentPlaced;
             MessageHandlers[TestMessageID.UpdateVolumeTransform] = OnUpdateVolumeTransform;
@@ -584,6 +587,36 @@ namespace GalaxyExplorer.SpectatorView
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCurrentContentLocalScale);
                 msg.Write(scale);
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
+            }
+        }
+
+        private void OnUpdateCursorTransform(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                //Debug.Log("OnUpdateCursorTransform");
+                var vol2worldPos = 
+                    TransitionManager.Instance.ViewVolume.transform.TransformPoint(msg.ReadVector3());
+                Cursor.Instance.transform.position = vol2worldPos;
+
+                Cursor.Instance.transform.rotation = msg.ReadQuaternion();
+                Cursor.Instance.transform.localScale = msg.ReadVector3();
+            }
+        }
+
+        public void SendUpdateCursorTransform()
+        {
+            if (IsHoloLensUser)
+            {
+                //Debug.Log("SendUpdateCursorTransform");
+                NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCursorTransform);
+                var world2volPos =
+                    TransitionManager.Instance.ViewVolume.transform.InverseTransformPoint(Cursor.Instance.transform.position);
+                msg.Write(world2volPos);
+
+                msg.Write(Cursor.Instance.transform.rotation);
+                msg.Write(Cursor.Instance.transform.localScale);
+                serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Unreliable);
             }
         }
 

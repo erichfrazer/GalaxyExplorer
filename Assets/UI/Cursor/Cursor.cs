@@ -328,7 +328,17 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
         {
             cursorOriginTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(cursorOriginTransform);
             cursorGazeRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(cursorGazeRay, cam.nearClipPlane);
-            Debug.DrawLine(cursorGazeRay.origin, cursorGazeRay.direction * 10f, Color.red);
+        }
+
+        // If we are running in SpectatorView, OnUpdateCursorTransform takes care
+        // of moving the cursor for everyone but the HoloLens user.
+        if (GE_SpectatorViewManager.SpectatorViewEnabled && !GE_SpectatorViewManager.Instance.IsHoloLensUser)
+        {
+            if (runningInEditor)
+            {
+                Debug.DrawLine(GE_SpectatorViewManager.GetHoloLensUserTransform(cam.transform).position, transform.position, Color.red);
+            }
+            return;
         }
 
         Vector3 desiredPosition = cursorOriginTransform.position + (cursorOriginTransform.forward * defaultCursorDistance);
@@ -383,7 +393,7 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
             }
         }
 
-        // orient the cursor toward's its source
+        // orient the cursor towards its source
         transform.rotation = Quaternion.LookRotation(cursorOriginTransform.forward, cursorOriginTransform.up);
 
         // get the previous and desired positions in cursor source space
@@ -401,6 +411,12 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
         // scale the cursor based on its distance from its origin
         var distance = (transform.position - cursorOriginTransform.position).magnitude;
         transform.localScale = Vector3.one * Mathf.Min(targetScale, maxScreenSize * distance);
+
+        // now that we know, tell everyone else where to render the cursor
+        if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
+        {
+            GE_SpectatorViewManager.Instance.SendUpdateCursorTransform();
+        }
     }
 
     public void ApplyCursorState(CursorState state)
