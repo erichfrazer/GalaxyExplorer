@@ -30,6 +30,8 @@ namespace GalaxyExplorer.SpectatorView
             SceneTransitionForward,
             SceneTransitionBackward,
             ToggleSolarSystemOrbitScale,
+            PointOfInterestGazeSelect,
+            PointOfInterestAnimateDescription,
             PointOfInterestCardTapped,
             HideAllCards,
             // UI messages
@@ -107,6 +109,8 @@ namespace GalaxyExplorer.SpectatorView
             MessageHandlers[TestMessageID.SceneTransitionForward] = OnSceneTransitionForward;
             MessageHandlers[TestMessageID.SceneTransitionBackward] = OnSceneTransitionBackward;
             MessageHandlers[TestMessageID.ToggleSolarSystemOrbitScale] = OnToggleSolarSystemOrbitScale;
+            MessageHandlers[TestMessageID.PointOfInterestGazeSelect] = OnPointOfInterestGazeSelect;
+            MessageHandlers[TestMessageID.PointOfInterestAnimateDescription] = OnPointOfInterestAnimateDescription;
             MessageHandlers[TestMessageID.PointOfInterestCardTapped] = OnPointOfInterestCardTapped;
             MessageHandlers[TestMessageID.HideAllCards] = OnHideAllCards;
             MessageHandlers[TestMessageID.UpdateCursorTransform] = OnUpdateCursorTransform;
@@ -159,7 +163,7 @@ namespace GalaxyExplorer.SpectatorView
                 SendSpectatorViewPlayersReady();
             }
         }
-        
+
         public IEnumerator WaitForAnchorToBeLocated()
         {
             // wait until we have an Anchor
@@ -194,7 +198,7 @@ namespace GalaxyExplorer.SpectatorView
 
             User remoteUser = null;
             if (!HolographicCameraManager.Instance.TryGetHoloLensUser(ref remoteUser))
-            { 
+            {
                 return false;
             }
 
@@ -340,6 +344,40 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
+        private void OnPointOfInterestAnimateDescription(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                string descriptionName = msg.ReadString().ToString();
+                Debug.Log(string.Format("OnPointOfInterestAnimateDescription for {0}", descriptionName));
+                string property = msg.ReadString().ToString();
+                bool value = msg.ReadByte() == 1;
+
+                Animator[] animators = ViewLoader.Instance.GetComponentsInChildren<Animator>();
+                foreach (Animator ani in animators)
+                {
+                    if (ani.gameObject.name.Equals(descriptionName))
+                    {
+                        ani.SetBool(property, value);
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void SendPointOfInterestAnimateDescription(string descriptionName, string property, bool value)
+        {
+            if (IsHoloLensUser)
+            {
+                Debug.Log(string.Format("SendPointOfInterestAnimateDescription({0}, {1})", descriptionName, value.ToString()));
+                NetworkOutMessage msg = CreateMessage(TestMessageID.PointOfInterestAnimateDescription);
+                msg.Write(new XString(descriptionName));
+                msg.Write(new XString(property));
+                msg.Write((byte)(value ? 1 : 0));
+                serverConnection.Broadcast(msg);
+            }
+        }
+
         private void OnPointOfInterestCardTapped(NetworkInMessage msg)
         {
             if (msg.ReadInt64() != LocalUserId)
@@ -377,6 +415,54 @@ namespace GalaxyExplorer.SpectatorView
                 Debug.Log(string.Format("SendPointOfInterestCardTapped({0})", poiName));
                 NetworkOutMessage msg = CreateMessage(TestMessageID.PointOfInterestCardTapped);
                 msg.Write(new XString(poiName));
+                serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
+            }
+        }
+
+        private void OnPointOfInterestGazeSelect(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                bool isSelect = msg.ReadByte() == 1;
+                string nameToFind = msg.ReadString().ToString();
+                Debug.Log(string.Format("OnPointOfInterestGaze{1} for POI named {0}", nameToFind, isSelect?"Select":"Deselect"));
+                PointOfInterest[] points = ViewLoader.Instance.GetComponentsInChildren<PointOfInterest>();
+                foreach (PointOfInterest poi in points)
+                {
+                    GameObject goToFind;
+                    if (ViewLoader.Instance.CurrentView.Equals("GalaxyView"))
+                    {
+                        goToFind = poi.transform.parent.parent.gameObject;
+                    }
+                    else
+                    {
+                        // Center of Galaxy and Solar System views
+                        goToFind = poi.gameObject;
+                    }
+                    if (goToFind.name.Equals(nameToFind))
+                    {
+                        if (isSelect)
+                        {
+                            poi.OnGazeSelect();
+                        }
+                        else
+                        {
+                            poi.OnGazeDeselect();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void SendPointOfInterestGazeSelect(string nameToFind, bool isSelect)
+        {
+            if (IsHoloLensUser)
+            {
+                Debug.Log(string.Format("SendPointOfInterestGazeSelect({0}, {1})", nameToFind, isSelect.ToString()));
+                var msg = CreateMessage(TestMessageID.PointOfInterestGazeSelect);
+                msg.Write((byte)(isSelect ? 1 : 0));
+                msg.Write(new XString(nameToFind));
                 serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
             }
         }
@@ -588,7 +674,7 @@ namespace GalaxyExplorer.SpectatorView
             if (msg.ReadInt64() != LocalUserId)
             {
                 //Debug.Log("OnUpdateCursorTransform");
-                var vol2worldPos = 
+                var vol2worldPos =
                     TransitionManager.Instance.ViewVolume.transform.TransformPoint(msg.ReadVector3());
                 Cursor.Instance.transform.position = vol2worldPos;
 
@@ -793,7 +879,7 @@ namespace GalaxyExplorer.SpectatorView.Extensions
             }
 
             // find the HoloLens user amongst the connected users
-            for (int i=0; i<userIds.Count; i++)
+            for (int i = 0; i < userIds.Count; i++)
             {
                 long userId = userIds[i];
 #if UNITY_EDITOR
@@ -805,10 +891,9 @@ namespace GalaxyExplorer.SpectatorView.Extensions
                 // We can also skip the tppcUser because that's the Spectator View camera rig
                 if (hcm.tppcUser == null)
                 {
-                    //Debug.Log("GetHoloLensUser() returning null(2)");
                     return false;
                 }
-                else if (userId  == hcm.tppcUser.GetID())
+                else if (userId == hcm.tppcUser.GetID())
                 {
                     continue;
                 }
@@ -826,7 +911,7 @@ namespace GalaxyExplorer.SpectatorView.Extensions
                     {
                         return false;
                     }
-                    if (userId == hcm.editorUser.GetID())
+                    else if (userId == hcm.editorUser.GetID())
                     {
                         continue;
                     }

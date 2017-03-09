@@ -42,13 +42,13 @@ public class OrbitPicker : GazeSelectionTarget
     {
         Ray cameraRay;
         cameraRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
-        {
-            GE_SpectatorViewManager.TryGetHoloLensUserGazeRay(ref cameraRay);
-        }
         RaycastHit hitInfo;
         if (orbitMesh && orbitMesh.Raycast(cameraRay, out hitInfo, 1000.0f))
         {
+            if (GE_SpectatorViewManager.SpectatorViewEnabled)
+            {
+                GE_SpectatorViewManager.Instance.SendPointOfInterestGazeSelect(pointOfInterest.gameObject.name, true);
+            }
             displayCard.transform.position = hitInfo.point;
             displayCard.SetActive(true);
         }
@@ -58,6 +58,10 @@ public class OrbitPicker : GazeSelectionTarget
     {
         if (orbitMesh)
         {
+            if (GE_SpectatorViewManager.SpectatorViewEnabled)
+            {
+                GE_SpectatorViewManager.Instance.SendPointOfInterestGazeSelect(pointOfInterest.gameObject.name, false);
+            }
             displayCard.SetActive(false);
         }
     }

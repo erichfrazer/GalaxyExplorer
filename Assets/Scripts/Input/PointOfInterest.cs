@@ -1,6 +1,7 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using GalaxyExplorer.SpectatorView;
 using HoloToolkit.Unity;
 using System.Collections.Generic;
 using UnityEngine;
@@ -150,6 +151,10 @@ public class PointOfInterest : GazeSelectionTarget
         {
             if (descriptionAnimator != null)
             {
+                if (GE_SpectatorViewManager.SpectatorViewEnabled)
+                {
+                    GE_SpectatorViewManager.Instance.SendPointOfInterestAnimateDescription(Description.name, "hover", false);
+                }
                 descriptionAnimator.SetBool("hover", false);
             }
 
@@ -166,6 +171,10 @@ public class PointOfInterest : GazeSelectionTarget
         {
             if (descriptionAnimator != null)
             {
+                if (GE_SpectatorViewManager.SpectatorViewEnabled)
+                {
+                    GE_SpectatorViewManager.Instance.SendPointOfInterestAnimateDescription(Description.name, "hover", true);
+                }
                 descriptionAnimator.SetBool("hover", true);
             }
 
@@ -208,8 +217,28 @@ public class PointOfInterest : GazeSelectionTarget
         return worldPositionVerticalComponent + (Camera.main.transform.forward * offset.z) + (Camera.main.transform.right * offset.x);
     }
 
+    private void HandleSpectatorViewSelection(bool isSelect)
+    {
+        string nameToLookFor;
+        if (ViewLoader.Instance.CurrentView.Equals("GalaxyView"))
+        {
+            nameToLookFor = transform.parent.parent.gameObject.name;
+        }
+        else
+        {
+            // Center of the Galaxy and Solar System views
+            nameToLookFor = gameObject.name;
+        }
+        GE_SpectatorViewManager.Instance.SendPointOfInterestGazeSelect(nameToLookFor, isSelect);
+    }
+
     public override void OnGazeSelect()
     {
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            HandleSpectatorViewSelection(true);
+        }
+
         ShowDescription();
 
         if (!string.IsNullOrEmpty(HighlightSound))
@@ -220,6 +249,11 @@ public class PointOfInterest : GazeSelectionTarget
 
     public override void OnGazeDeselect()
     {
+        if (GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            HandleSpectatorViewSelection(false);
+        }
+
         HideDescription();
     }
 
