@@ -154,7 +154,7 @@ GameObject:
   - component: {fileID: 9572472}
   - component: {fileID: 6539470}
   m_Layer: 10
-  m_Name: Card
+  m_Name: Homunculus_Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

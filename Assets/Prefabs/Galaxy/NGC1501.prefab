@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 9521538}
   - component: {fileID: 6510816}
   m_Layer: 10
-  m_Name: Card
+  m_Name: NGC1501_Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

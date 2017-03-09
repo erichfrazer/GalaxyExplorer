@@ -154,7 +154,7 @@ GameObject:
   - component: {fileID: 9525868}
   - component: {fileID: 6578696}
   m_Layer: 10
-  m_Name: Card
+  m_Name: CrabNebula_Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

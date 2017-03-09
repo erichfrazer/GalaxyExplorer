@@ -80,7 +80,7 @@ GameObject:
   - component: {fileID: 9549996}
   - component: {fileID: 6519388}
   m_Layer: 10
-  m_Name: Card
+  m_Name: Trumper14_Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
