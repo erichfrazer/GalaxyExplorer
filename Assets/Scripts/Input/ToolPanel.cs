@@ -73,7 +73,7 @@ public class ToolPanel : MonoBehaviour
         Transform controllingTransform = Camera.main.transform;
         if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            controllingTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+            GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref controllingTransform);
         }
         RecenterTools(controllingTransform);
     }
@@ -105,7 +105,7 @@ public class ToolPanel : MonoBehaviour
         Transform controllingTransform = Camera.main.transform;
         if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            controllingTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+            GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref controllingTransform);
         }
 
         Vector3 desiredRotationVector = Quaternion.AngleAxis(controllingTransform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward;

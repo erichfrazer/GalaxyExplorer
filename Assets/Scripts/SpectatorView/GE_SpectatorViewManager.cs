@@ -185,49 +185,42 @@ namespace GalaxyExplorer.SpectatorView
             get { return HolographicCameraManager.Instance.IsHoloLensUser(); }
         }
 
-        public static Transform GetHoloLensUserTransform(Transform fallbackTransform)
+        public static bool TryGetHoloLensUserTransform(ref Transform transform)
         {
             if (!SpectatorViewEnabled || !HolographicCameraManager.Instance)
             {
-                //Debug.Log("GetHoloLensUserTransform: Returning fallbackTransform(1)");
-                return fallbackTransform;
+                return false;
             }
 
-            var remoteUser = HolographicCameraManager.Instance.GetHoloLensUser();
-
-            if (remoteUser == null)
-            {
-                //Debug.Log("GetHoloLensUserTransform: Returning fallbackTransform(2)");
-                return fallbackTransform;
+            User remoteUser = null;
+            if (!HolographicCameraManager.Instance.TryGetHoloLensUser(ref remoteUser))
+            { 
+                return false;
             }
 
-            return SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject.transform;
+            transform = SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject.transform;
+            return true;
         }
 
-        public static Ray GetHoloLensUserGazeRay(Ray fallbackRay, float offsetFromOrigin)
+        public static bool TryGetHoloLensUserGazeRay(ref Ray retRay)
         {
             if (!SpectatorViewEnabled || !HolographicCameraManager.Instance)
             {
-                //Debug.Log("GetHololensUserGazeRay: Returning fallbackRay(1)");
-                return fallbackRay;
+                return false;
             }
 
-            var remoteUser = HolographicCameraManager.Instance.GetHoloLensUser();
-
-            if (remoteUser == null)
+            User remoteUser = null;
+            if (!HolographicCameraManager.Instance.TryGetHoloLensUser(ref remoteUser))
             {
-                //Debug.Log("GetHololensUserGazeRay: Returning fallbackRay(2)");
-                return fallbackRay;
+                return false;
             }
 
             var remoteHead = SV_RemotePlayerManager.Instance.GetRemoteHeadInfo(remoteUser.GetID()).HeadObject;
 
-            Ray retRay = new Ray();
-
-            retRay.origin = remoteHead.transform.position + offsetFromOrigin * remoteHead.transform.forward;
+            retRay.origin = remoteHead.transform.position;
             retRay.direction = remoteHead.transform.forward;
 
-            return retRay;
+            return true;
         }
 
         #region // event handlers
@@ -765,7 +758,7 @@ namespace GalaxyExplorer.SpectatorView.Extensions
         {
             if (holoLensUser == null)
             {
-                if (GetHoloLensUser(hcm) == null)
+                if (!hcm.TryGetHoloLensUser(ref holoLensUser))
                 {
                     return false;
                 }
@@ -775,21 +768,28 @@ namespace GalaxyExplorer.SpectatorView.Extensions
         }
 
         private static User holoLensUser = null;
-        public static User GetHoloLensUser(this HolographicCameraManager hcm)
+        public static bool TryGetHoloLensUser(this HolographicCameraManager hcm, ref User user)
         {
             // if we've already determined the HoloLens user, return that cached value.
             if (holoLensUser != null)
             {
-                //Debug.Log(string.Format("HoloLensUser.GetId() == {0}", holoLensUser.GetID()));
-                return holoLensUser;
+                user = holoLensUser;
+                return true;
+            }
+
+            // If our singletons haven't been initialized yet, return false.
+            if (!hcm ||
+                !SharingSessionTracker.Instance ||
+                SharingStage.Instance.Manager == null)
+            {
+                return false;
             }
 
             // get the user ID's and bail out if there are too few
             var userIds = SharingSessionTracker.Instance.UserIds;
             if (userIds.Count < 3)
             {
-                //Debug.Log("GetHoloLensUser() returning null(1)");
-                return null;
+                return false;
             }
 
             // find the HoloLens user amongst the connected users
@@ -806,7 +806,7 @@ namespace GalaxyExplorer.SpectatorView.Extensions
                 if (hcm.tppcUser == null)
                 {
                     //Debug.Log("GetHoloLensUser() returning null(2)");
-                    return null;
+                    return false;
                 }
                 else if (userId  == hcm.tppcUser.GetID())
                 {
@@ -814,7 +814,7 @@ namespace GalaxyExplorer.SpectatorView.Extensions
                 }
 #else
                 // we aren't running as the editor, check to see if we are the Spectator View camera rig
-                if (HolographicCameraManager.Instance.IsHolographicCameraRig())
+                if (hcm.IsHolographicCameraRig())
                 {
                     // if we are, we can skip the Local User because that's us
                     if (userId == SharingStage.Instance.Manager.GetLocalUser().GetID())
@@ -822,6 +822,10 @@ namespace GalaxyExplorer.SpectatorView.Extensions
                         continue;
                     }
                     // We can also skip the editor user for obvious reasons
+                    if (hcm.editorUser == null)
+                    {
+                        return false;
+                    }
                     if (userId == hcm.editorUser.GetID())
                     {
                         continue;
@@ -839,7 +843,8 @@ namespace GalaxyExplorer.SpectatorView.Extensions
                 break;
             }
 
-            return holoLensUser;
+            user = holoLensUser;
+            return true;
         }
     }
 }

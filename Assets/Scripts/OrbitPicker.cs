@@ -44,7 +44,7 @@ public class OrbitPicker : GazeSelectionTarget
         cameraRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            cameraRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(cameraRay, 0f);
+            GE_SpectatorViewManager.TryGetHoloLensUserGazeRay(ref cameraRay);
         }
         RaycastHit hitInfo;
         if (orbitMesh && orbitMesh.Raycast(cameraRay, out hitInfo, 1000.0f))

@@ -326,17 +326,24 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
 
         if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            cursorOriginTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(cursorOriginTransform);
-            cursorGazeRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(cursorGazeRay, cam.nearClipPlane);
+            GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref cursorOriginTransform);
+            GE_SpectatorViewManager.TryGetHoloLensUserGazeRay(ref cursorGazeRay);
         }
 
         // If we are running in SpectatorView, OnUpdateCursorTransform takes care
         // of moving the cursor for everyone but the HoloLens user.
-        if (GE_SpectatorViewManager.SpectatorViewEnabled && !GE_SpectatorViewManager.Instance.IsHoloLensUser)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled && 
+            GE_SpectatorViewManager.Instance.SpectatorViewParticipantsReady && 
+            !GE_SpectatorViewManager.Instance.IsHoloLensUser)
         {
             if (runningInEditor)
             {
-                Debug.DrawLine(GE_SpectatorViewManager.GetHoloLensUserTransform(cam.transform).position, transform.position, Color.red);
+                Transform trans = cam.transform;
+                if (GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref trans))
+                {
+                    var endPoint = trans.position + trans.forward * 10f;
+                    Debug.DrawLine(trans.position, endPoint, Color.red);
+                }
             }
             return;
         }

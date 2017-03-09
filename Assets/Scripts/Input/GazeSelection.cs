@@ -82,7 +82,8 @@ public class GazeSelection : MonoBehaviour
                 gazeRay = new Ray(Camera.main.transform.position + (Camera.main.nearClipPlane * Camera.main.transform.forward), Camera.main.transform.forward);
                 if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    gazeRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(gazeRay, Camera.main.nearClipPlane);
+                    // Gaze ray starts at the HoloLens user and points forward
+                    GE_SpectatorViewManager.TryGetHoloLensUserGazeRay(ref gazeRay);
                 }
             }
             else
@@ -119,7 +120,7 @@ public class GazeSelection : MonoBehaviour
                                 var cursorOriginTransform = Camera.main.transform;
                                 if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
                                 {
-                                    cursorOriginTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(cursorOriginTransform);
+                                    GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref cursorOriginTransform);
                                 }
                                 float dotProduct = Vector3.Dot(cursorOriginTransform.forward, toTarget);
 

@@ -34,7 +34,7 @@ public class LSRPlaneModifier : GalaxyExplorer.HoloToolkit.Unity.Singleton<LSRPl
         Ray cameraRay;
         cameraRay = new Ray(camPos, cam.transform.forward);
 #if UNITY_EDITOR
-        cameraRay = GE_SpectatorViewManager.GetHoloLensUserGazeRay(cameraRay, 0f);
+        GE_SpectatorViewManager.TryGetHoloLensUserGazeRay(ref cameraRay);
 #endif
         var raycastResults = Physics.RaycastAll(cameraRay, float.MaxValue, TargetCollisionLayers);
         if (raycastResults.Length > 0)

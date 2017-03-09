@@ -303,7 +303,7 @@ public class TransitionManager : GalaxyExplorer.HoloToolkit.Unity.Singleton<Tran
         Transform controllingTransform = Camera.main.transform;
         if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            controllingTransform = GE_SpectatorViewManager.GetHoloLensUserTransform(controllingTransform);
+            GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref controllingTransform);
         }
 
         var contentToControllingTransform = controllingTransform.position - ViewLoader.Instance.transform.position;
