@@ -149,7 +149,7 @@ public class ToolPanel : MonoBehaviour
             GE_SpectatorViewManager.Instance.SendUpdateTransform(
                 GE_SpectatorViewManager.TransformToUpdate.Tools,
                 GE_SpectatorViewManager.TransformUpdateFlags.Position |
-                GE_SpectatorViewManager.TransformUpdateFlags.Rotation);
+                GE_SpectatorViewManager.TransformUpdateFlags.LocalRotation);
         }
     }
 
