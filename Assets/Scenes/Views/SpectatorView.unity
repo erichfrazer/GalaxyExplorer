@@ -133,7 +133,7 @@ Prefab:
     - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
         type: 2}
       propertyPath: ClientHololensCSV
-      value: 10.89.160.178
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
         type: 2}
@@ -143,7 +143,7 @@ Prefab:
     - target: {fileID: 114198603613783790, guid: 1a5c3b12e0673024bb9beea1e7b5b616,
         type: 2}
       propertyPath: LocalComputerIP
-      value: 10.124.133.29
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1012395230765410, guid: 1a5c3b12e0673024bb9beea1e7b5b616, type: 2}
       propertyPath: m_IsActive

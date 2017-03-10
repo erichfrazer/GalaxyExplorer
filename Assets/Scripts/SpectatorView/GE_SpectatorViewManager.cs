@@ -686,15 +686,15 @@ namespace GalaxyExplorer.SpectatorView
 
         private Transform GetRelativeTransform(TransformToUpdate transEnum)
         {
-            if (transEnum == TransformToUpdate.Volume || transEnum == TransformToUpdate.Tools)
+            if (transEnum == TransformToUpdate.Cursor)
             {
-                // Send the Volume relative to the Anchor transform
-                return SV_ImportExportAnchorManager.Instance.transform;
+                // Sendthe Cursor relative to the Volume transform
+                return TransitionManager.Instance.ViewVolume.transform;
             }
             else
             {
-                // Send everything else (Cursor and Tools) relative to the Volume transform
-                return TransitionManager.Instance.ViewVolume.transform;
+                // Send everything else relative to the Anchor transform
+                return SV_ImportExportAnchorManager.Instance.transform;
             }
         }
 
