@@ -70,12 +70,7 @@ public class ToolPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        Transform controllingTransform = Camera.main.transform;
-        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
-        {
-            GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref controllingTransform);
-        }
-        RecenterTools(controllingTransform);
+        RecenterTools(Camera.main.transform);
     }
 
     public IEnumerator FadeOut(bool instant)
@@ -102,11 +97,13 @@ public class ToolPanel : MonoBehaviour
             return;
         }
 
-        Transform controllingTransform = Camera.main.transform;
-        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+        if (GE_SpectatorViewManager.SpectatorViewEnabled && !GE_SpectatorViewManager.Instance.IsHoloLensUser)
         {
-            GE_SpectatorViewManager.TryGetHoloLensUserTransform(ref controllingTransform);
+            // In Spectator View, the HoloLens user updates the tool panel's position.
+            return;
         }
+
+        Transform controllingTransform = Camera.main.transform;
 
         Vector3 desiredRotationVector = Quaternion.AngleAxis(controllingTransform.rotation.eulerAngles.y, Vector3.up) * Vector3.forward;
         Vector3 verticalLook = Quaternion.AngleAxis(controllingTransform.rotation.eulerAngles.x, controllingTransform.right) * controllingTransform.forward;
@@ -150,6 +147,16 @@ public class ToolPanel : MonoBehaviour
 
         Quaternion panelRotation = Quaternion.Euler(0.0f, lastRotation, 0.0f);
         UpdatePosition(controllingTransform, panelRotation);
+
+        // Now that we know the position, tell the rest of the SpectatorView participants.
+        if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
+        {
+            GE_SpectatorViewManager.Instance.SendUpdateTransform(
+                transform,
+                GE_SpectatorViewManager.TransformToUpdate.Tools,
+                GE_SpectatorViewManager.TransformUpdateFlags.Position |
+                GE_SpectatorViewManager.TransformUpdateFlags.Rotation);
+        }
     }
 
     private void RecenterTools(Transform controllingTransform)

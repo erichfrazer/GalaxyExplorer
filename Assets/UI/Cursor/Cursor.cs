@@ -423,6 +423,12 @@ public class Cursor : GalaxyExplorer.HoloToolkit.Unity.Singleton<Cursor>
         if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
         {
             GE_SpectatorViewManager.Instance.SendUpdateCursorTransform();
+            //GE_SpectatorViewManager.Instance.SendUpdateTransform(
+            //    transform,
+            //    GE_SpectatorViewManager.TransformToUpdate.Cursor,
+            //    GE_SpectatorViewManager.TransformUpdateFlags.Position |
+            //    GE_SpectatorViewManager.TransformUpdateFlags.Rotation |
+            //    GE_SpectatorViewManager.TransformUpdateFlags.LocalScale);
         }
     }
 

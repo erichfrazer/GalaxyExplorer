@@ -39,7 +39,7 @@ namespace GalaxyExplorer.SpectatorView
             // Tool messages
             MoveCube,
             ContentPlaced,
-            UpdateVolumeTransform,
+            UpdateTransform,
             SelectToolbarButton,
             UpdateCurrentContentLocalScale,
             UpdateCurrentContentRotation,
@@ -116,7 +116,7 @@ namespace GalaxyExplorer.SpectatorView
             MessageHandlers[TestMessageID.UpdateCursorTransform] = OnUpdateCursorTransform;
             MessageHandlers[TestMessageID.MoveCube] = OnMoveCube;
             MessageHandlers[TestMessageID.ContentPlaced] = OnContentPlaced;
-            MessageHandlers[TestMessageID.UpdateVolumeTransform] = OnUpdateVolumeTransform;
+            MessageHandlers[TestMessageID.UpdateTransform] = OnUpdateTransform;
             MessageHandlers[TestMessageID.SelectToolbarButton] = OnSelectToolbarButton;
             MessageHandlers[TestMessageID.UpdateCurrentContentLocalScale] = OnUpdateCurrentContentLocalScale;
             MessageHandlers[TestMessageID.UpdateCurrentContentRotation] = OnUpdateCurrentContentRotation;
@@ -284,9 +284,8 @@ namespace GalaxyExplorer.SpectatorView
             {
                 Debug.Log("OnContentPlaced");
                 // send the final position of the volume
-                GE_SpectatorViewManager.VolumeUpdateFlags flags =
-                    GE_SpectatorViewManager.VolumeUpdateFlags.Position | GE_SpectatorViewManager.VolumeUpdateFlags.Rotation;
-                SendUpdateVolumeTransform(TransitionManager.Instance.ViewVolume, flags);
+                TransformUpdateFlags flags = TransformUpdateFlags.Position | TransformUpdateFlags.Rotation;
+                SendUpdateTransform(TransitionManager.Instance.ViewVolume.transform, TransformToUpdate.Volume, flags);
                 SendBasicStateChangeMessage(TestMessageID.ContentPlaced);
             }
         }
@@ -668,7 +667,7 @@ namespace GalaxyExplorer.SpectatorView
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
             }
         }
-
+#if true
         private void OnUpdateCursorTransform(NetworkInMessage msg)
         {
             if (msg.ReadInt64() != LocalUserId)
@@ -698,71 +697,104 @@ namespace GalaxyExplorer.SpectatorView
                 serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Unreliable);
             }
         }
-
-        public enum VolumeUpdateFlags : byte
+#endif
+        public enum TransformUpdateFlags : byte
         {
             Position = 1,
             Rotation = 2,
-            Scale = 4
+            LocalPosition = 4,
+            LocalRotation = 8,
+            LocalScale = 16
         }
 
-        private void OnUpdateVolumeTransform(NetworkInMessage msg)
+        public enum TransformToUpdate : byte
+        {
+            Volume,
+            Cursor,
+            Tools
+        }
+
+        private void OnUpdateTransform(NetworkInMessage msg)
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                //Debug.Log("OnUpdateVolumeTransform");
-                var anchorTrans = SV_ImportExportAnchorManager.Instance.transform;
+                //Debug.Log("OnUpdateTransform");
 
-                VolumeUpdateFlags flags = (VolumeUpdateFlags)msg.ReadByte();
-                if ((flags & VolumeUpdateFlags.Position) != 0)
+                TransformToUpdate transEnum = (TransformToUpdate)msg.ReadByte();
+                Transform transform = null;
+                switch (transEnum)
                 {
+                    case TransformToUpdate.Cursor: transform = Cursor.Instance.transform; break;
+                    case TransformToUpdate.Volume: transform = TransitionManager.Instance.ViewVolume.transform; break;
+                    case TransformToUpdate.Tools: transform = ToolManager.Instance.transform; break;
+                }
+
+                TransformUpdateFlags flags = (TransformUpdateFlags)msg.ReadByte();
+
+                if ((flags & TransformUpdateFlags.Position) != 0)
+                {
+                    // World Position is always sent relative to the anchor.
+                    var anchorTrans = SV_ImportExportAnchorManager.Instance.transform;
                     var position = msg.ReadVector3();
-                    // take the local position read in and convert it to world space
-                    var worldPos = anchorTrans.TransformPoint(position);
-                    TransitionManager.Instance.ViewVolume.transform.position = worldPos;
+                    transform.position = anchorTrans.TransformPoint(position);
                 }
-                if ((flags & VolumeUpdateFlags.Rotation) != 0)
+                if ((flags & TransformUpdateFlags.Rotation) != 0)
                 {
-                    var rotation = msg.ReadQuaternion();
-                    TransitionManager.Instance.ViewVolume.transform.rotation = rotation;
+                    transform.rotation = msg.ReadQuaternion();
                 }
-                if ((flags & VolumeUpdateFlags.Scale) != 0)
+                if ((flags & TransformUpdateFlags.LocalPosition) != 0)
                 {
-                    var scale = msg.ReadVector3();
-                    TransitionManager.Instance.ViewVolume.transform.localScale = scale;
+                    transform.localPosition = msg.ReadVector3();
+
+                }
+                if ((flags & TransformUpdateFlags.LocalRotation) != 0)
+                {
+                    var localRot = msg.ReadQuaternion();
+                }
+                if ((flags & TransformUpdateFlags.LocalScale) != 0)
+                {
+                    transform.localScale = msg.ReadVector3();
                 }
             }
         }
 
-        public void SendUpdateVolumeTransform(GameObject volume, VolumeUpdateFlags flags)
+        public void SendUpdateTransform(Transform theTransform, TransformToUpdate transEnum, TransformUpdateFlags flags)
         {
             if (IsHoloLensUser)
             {
-                //Debug.Log("SendUpdateVolumeTransform");
-                NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateVolumeTransform);
+                //Debug.Log("SendUpdateTransform");
+                NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateTransform);
+                msg.Write((byte)transEnum);
                 msg.Write((byte)flags);
-                // take the world position of the volume and convert it into Anchor's local space
-                var anchorTrans = SV_ImportExportAnchorManager.Instance.gameObject.transform;
-                var anchorLocalPos = anchorTrans.InverseTransformPoint(volume.transform.position);
-                if ((flags & VolumeUpdateFlags.Position) != 0)
+                if ((flags & TransformUpdateFlags.Position) != 0)
                 {
-                    msg.Write(anchorLocalPos);
+                    // Always send (world) position relative to the anchor
+                    var anchorTrans = SV_ImportExportAnchorManager.Instance.gameObject.transform;
+                    msg.Write(anchorTrans.InverseTransformPoint(theTransform.position));
                 }
-                if ((flags & VolumeUpdateFlags.Rotation) != 0)
+                if ((flags & TransformUpdateFlags.Rotation) != 0)
                 {
-                    msg.Write(volume.transform.rotation);
+                    msg.Write(theTransform.rotation);
                 }
-                if ((flags & VolumeUpdateFlags.Scale) != 0)
+                if ((flags & TransformUpdateFlags.LocalPosition) != 0)
                 {
-                    msg.Write(volume.transform.localScale);
+                    msg.Write(theTransform.localPosition);
+                }
+                if ((flags & TransformUpdateFlags.LocalRotation) != 0)
+                {
+                    msg.Write(theTransform.localRotation);
+                }
+                if ((flags & TransformUpdateFlags.LocalScale) != 0)
+                {
+                    msg.Write(theTransform.localScale);
                 }
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
             }
         }
 
-        #endregion // event handlers
+#endregion // event handlers
 
-        #region // message helpers
+#region // message helpers
         private void SendBasicStateChangeMessage(TestMessageID messageId)
         {
             NetworkOutMessage msg = CreateMessage(messageId);
@@ -787,7 +819,7 @@ namespace GalaxyExplorer.SpectatorView
                 messageHandler(msg);
             }
         }
-        #endregion
+#endregion
 
         protected override void OnDestroy()
         {
