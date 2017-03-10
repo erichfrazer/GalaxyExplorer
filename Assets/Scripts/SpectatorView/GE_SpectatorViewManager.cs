@@ -34,8 +34,6 @@ namespace GalaxyExplorer.SpectatorView
             PointOfInterestAnimateDescription,
             PointOfInterestCardTapped,
             HideAllCards,
-            // UI messages
-            UpdateCursorTransform,
             // Tool messages
             MoveCube,
             ContentPlaced,
@@ -113,7 +111,6 @@ namespace GalaxyExplorer.SpectatorView
             MessageHandlers[TestMessageID.PointOfInterestAnimateDescription] = OnPointOfInterestAnimateDescription;
             MessageHandlers[TestMessageID.PointOfInterestCardTapped] = OnPointOfInterestCardTapped;
             MessageHandlers[TestMessageID.HideAllCards] = OnHideAllCards;
-            MessageHandlers[TestMessageID.UpdateCursorTransform] = OnUpdateCursorTransform;
             MessageHandlers[TestMessageID.MoveCube] = OnMoveCube;
             MessageHandlers[TestMessageID.ContentPlaced] = OnContentPlaced;
             MessageHandlers[TestMessageID.UpdateTransform] = OnUpdateTransform;
@@ -727,11 +724,10 @@ namespace GalaxyExplorer.SpectatorView
                 if ((flags & TransformUpdateFlags.LocalPosition) != 0)
                 {
                     transform.localPosition = msg.ReadVector3();
-
                 }
                 if ((flags & TransformUpdateFlags.LocalRotation) != 0)
                 {
-                    var localRot = msg.ReadQuaternion();
+                    transform.localRotation = msg.ReadQuaternion();
                 }
                 if ((flags & TransformUpdateFlags.LocalScale) != 0)
                 {
