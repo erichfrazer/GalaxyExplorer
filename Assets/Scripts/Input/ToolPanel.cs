@@ -54,13 +54,8 @@ public class ToolPanel : MonoBehaviour
 
     private ToolsFader toolsFader;
 
-    private bool runningInEditor = false;
-
     private void Awake()
     {
-#if UNITY_EDITOR
-        runningInEditor = true;
-#endif
         var fadersGo = new GameObject("Tools Fader");
         fadersGo.transform.SetParent(transform, worldPositionStays: false);
         toolsFader = fadersGo.AddComponent<ToolsFader>();
@@ -152,7 +147,6 @@ public class ToolPanel : MonoBehaviour
         if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
         {
             GE_SpectatorViewManager.Instance.SendUpdateTransform(
-                transform,
                 GE_SpectatorViewManager.TransformToUpdate.Tools,
                 GE_SpectatorViewManager.TransformUpdateFlags.Position |
                 GE_SpectatorViewManager.TransformUpdateFlags.Rotation);

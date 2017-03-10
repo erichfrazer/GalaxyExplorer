@@ -10,14 +10,7 @@ public class OrbitPicker : GazeSelectionTarget
     public PointOfInterest pointOfInterest;
     private MeshCollider orbitMesh;
     private GameObject displayCard;
-    private bool runningInEditor = false;
 
-    private void Awake()
-    {
-#if UNITY_EDITOR
-        runningInEditor = true;
-#endif
-    }
     private void Start()
     {
         orbitMesh = GetComponent<MeshCollider>();

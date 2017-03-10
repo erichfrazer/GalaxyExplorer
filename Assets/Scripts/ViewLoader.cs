@@ -195,6 +195,13 @@ public class ViewLoader : GalaxyExplorer.HoloToolkit.Unity.Singleton<ViewLoader>
                 IntroductionFlow.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
                 ToolManager.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
             }
+
+            // Change the Cursor's forwardImpactOffset when in Spectator View
+            Cursor.Instance.forwardImpactOffset = -.01f;
+#if UNITY_EDITOR
+            ToolManager.Instance.GetComponent<FaceCamera>().enabled = false;
+#endif
+
             Debug.Log("...Spectator view loaded.");
         }
 

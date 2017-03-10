@@ -91,7 +91,6 @@ public class PlacementControl : GazeSelectionTarget
         if (GE_SpectatorViewManager.SpectatorViewEnabled && isHolding)
         {
             GE_SpectatorViewManager.Instance.SendUpdateTransform(
-                contentVolume.transform,
                 GE_SpectatorViewManager.TransformToUpdate.Volume,
                 GE_SpectatorViewManager.TransformUpdateFlags.Position |
                 GE_SpectatorViewManager.TransformUpdateFlags.Rotation);

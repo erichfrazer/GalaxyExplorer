@@ -285,7 +285,7 @@ namespace GalaxyExplorer.SpectatorView
                 Debug.Log("OnContentPlaced");
                 // send the final position of the volume
                 TransformUpdateFlags flags = TransformUpdateFlags.Position | TransformUpdateFlags.Rotation;
-                SendUpdateTransform(TransitionManager.Instance.ViewVolume.transform, TransformToUpdate.Volume, flags);
+                SendUpdateTransform(TransformToUpdate.Volume, flags);
                 SendBasicStateChangeMessage(TestMessageID.ContentPlaced);
             }
         }
@@ -667,37 +667,7 @@ namespace GalaxyExplorer.SpectatorView
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
             }
         }
-#if true
-        private void OnUpdateCursorTransform(NetworkInMessage msg)
-        {
-            if (msg.ReadInt64() != LocalUserId)
-            {
-                //Debug.Log("OnUpdateCursorTransform");
-                var vol2worldPos =
-                    TransitionManager.Instance.ViewVolume.transform.TransformPoint(msg.ReadVector3());
-                Cursor.Instance.transform.position = vol2worldPos;
 
-                Cursor.Instance.transform.rotation = msg.ReadQuaternion();
-                Cursor.Instance.transform.localScale = msg.ReadVector3();
-            }
-        }
-
-        public void SendUpdateCursorTransform()
-        {
-            if (IsHoloLensUser)
-            {
-                //Debug.Log("SendUpdateCursorTransform");
-                NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCursorTransform);
-                var world2volPos =
-                    TransitionManager.Instance.ViewVolume.transform.InverseTransformPoint(Cursor.Instance.transform.position);
-                msg.Write(world2volPos);
-
-                msg.Write(Cursor.Instance.transform.rotation);
-                msg.Write(Cursor.Instance.transform.localScale);
-                serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Unreliable);
-            }
-        }
-#endif
         public enum TransformUpdateFlags : byte
         {
             Position = 1,
@@ -712,6 +682,20 @@ namespace GalaxyExplorer.SpectatorView
             Volume,
             Cursor,
             Tools
+        }
+
+        private Transform GetRelativeTransform(TransformToUpdate transEnum)
+        {
+            if (transEnum == TransformToUpdate.Volume || transEnum == TransformToUpdate.Tools)
+            {
+                // Send the Volume relative to the Anchor transform
+                return SV_ImportExportAnchorManager.Instance.transform;
+            }
+            else
+            {
+                // Send everything else (Cursor and Tools) relative to the Volume transform
+                return TransitionManager.Instance.ViewVolume.transform;
+            }
         }
 
         private void OnUpdateTransform(NetworkInMessage msg)
@@ -733,10 +717,8 @@ namespace GalaxyExplorer.SpectatorView
 
                 if ((flags & TransformUpdateFlags.Position) != 0)
                 {
-                    // World Position is always sent relative to the anchor.
-                    var anchorTrans = SV_ImportExportAnchorManager.Instance.transform;
                     var position = msg.ReadVector3();
-                    transform.position = anchorTrans.TransformPoint(position);
+                    transform.position = GetRelativeTransform(transEnum).TransformPoint(position);
                 }
                 if ((flags & TransformUpdateFlags.Rotation) != 0)
                 {
@@ -758,7 +740,7 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        public void SendUpdateTransform(Transform theTransform, TransformToUpdate transEnum, TransformUpdateFlags flags)
+        public void SendUpdateTransform(TransformToUpdate transEnum, TransformUpdateFlags flags)
         {
             if (IsHoloLensUser)
             {
@@ -766,27 +748,34 @@ namespace GalaxyExplorer.SpectatorView
                 NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateTransform);
                 msg.Write((byte)transEnum);
                 msg.Write((byte)flags);
+
+                Transform transform = null;
+                switch (transEnum)
+                {
+                    case TransformToUpdate.Cursor: transform = Cursor.Instance.transform; break;
+                    case TransformToUpdate.Volume: transform = TransitionManager.Instance.ViewVolume.transform; break;
+                    case TransformToUpdate.Tools: transform = ToolManager.Instance.transform; break;
+                }
+
                 if ((flags & TransformUpdateFlags.Position) != 0)
                 {
-                    // Always send (world) position relative to the anchor
-                    var anchorTrans = SV_ImportExportAnchorManager.Instance.gameObject.transform;
-                    msg.Write(anchorTrans.InverseTransformPoint(theTransform.position));
+                    msg.Write(GetRelativeTransform(transEnum).InverseTransformPoint(transform.position));
                 }
                 if ((flags & TransformUpdateFlags.Rotation) != 0)
                 {
-                    msg.Write(theTransform.rotation);
+                    msg.Write(transform.rotation);
                 }
                 if ((flags & TransformUpdateFlags.LocalPosition) != 0)
                 {
-                    msg.Write(theTransform.localPosition);
+                    msg.Write(transform.localPosition);
                 }
                 if ((flags & TransformUpdateFlags.LocalRotation) != 0)
                 {
-                    msg.Write(theTransform.localRotation);
+                    msg.Write(transform.localRotation);
                 }
                 if ((flags & TransformUpdateFlags.LocalScale) != 0)
                 {
-                    msg.Write(theTransform.localScale);
+                    msg.Write(transform.localScale);
                 }
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
             }
