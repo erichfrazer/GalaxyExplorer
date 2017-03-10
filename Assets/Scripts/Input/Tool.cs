@@ -157,6 +157,11 @@ public class Tool : GazeSelectionTarget, IFadeTarget
     {
         if (!ToolManager.Instance.IsLocked)
         {
+            if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
+            {
+                GE_SpectatorViewManager.Instance.SendHandleButtonHighlight(gameObject.name, true);
+            }
+
             if (!selected)
             {
                 ToolSounds.Instance.PlayHighlightSound();
@@ -174,6 +179,11 @@ public class Tool : GazeSelectionTarget, IFadeTarget
     {
         if (!ToolManager.Instance.IsLocked)
         {
+            if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
+            {
+                GE_SpectatorViewManager.Instance.SendHandleButtonHighlight(gameObject.name, false);
+            }
+
             ToolSounds.Instance.PlayRemoveHighlightSound();
 
             if (selected)

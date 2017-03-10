@@ -131,6 +131,11 @@ public class Button : GazeSelectionTarget, IFadeTarget
     {
         if (!ToolManager.Instance.IsLocked)
         {
+            if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
+            {
+                GE_SpectatorViewManager.Instance.SendHandleButtonHighlight(gameObject.name, true);
+            }
+
             ToolSounds.Instance.PlayHighlightSound();
             meshRenderer.material = HightlightMaterial;
 
@@ -145,6 +150,11 @@ public class Button : GazeSelectionTarget, IFadeTarget
     {
         if (!ToolManager.Instance.IsLocked)
         {
+            if (GE_SpectatorViewManager.SpectatorViewEnabled && GE_SpectatorViewManager.Instance.IsHoloLensUser)
+            {
+                GE_SpectatorViewManager.Instance.SendHandleButtonHighlight(gameObject.name, false);
+            }
+
             ToolSounds.Instance.PlayRemoveHighlightSound();
             meshRenderer.material = DefaultMaterial;
 

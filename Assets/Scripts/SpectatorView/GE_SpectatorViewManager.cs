@@ -43,6 +43,7 @@ namespace GalaxyExplorer.SpectatorView
             UpdateCurrentContentRotation,
             ToggleTools,
             ResetView,
+            HandleButtonHighlight,
             // Last message (unused)
             Max
         }
@@ -119,6 +120,7 @@ namespace GalaxyExplorer.SpectatorView
             MessageHandlers[TestMessageID.UpdateCurrentContentRotation] = OnUpdateCurrentContentRotation;
             MessageHandlers[TestMessageID.ToggleTools] = OnToggleTools;
             MessageHandlers[TestMessageID.ResetView] = OnResetView;
+            MessageHandlers[TestMessageID.HandleButtonHighlight] = OnHandleButtonHighlight;
 
             StartCoroutine(WaitForSpectatorViewParticipantsAsync());
         }
@@ -284,6 +286,37 @@ namespace GalaxyExplorer.SpectatorView
                 TransformUpdateFlags flags = TransformUpdateFlags.Position | TransformUpdateFlags.Rotation;
                 SendUpdateTransform(TransformToUpdate.Volume, flags);
                 SendBasicStateChangeMessage(TestMessageID.ContentPlaced);
+            }
+        }
+
+        private void OnHandleButtonHighlight(NetworkInMessage msg)
+        {
+            if (msg.ReadInt64() != LocalUserId)
+            {
+                string buttonName = msg.ReadString().ToString();
+                bool highlight = msg.ReadByte() == 1;
+                Debug.Log(string.Format("OnHandleButtonHighlight for {0}: {1}", buttonName, highlight));
+                GazeSelectionTarget[] targets = ToolManager.Instance.GetComponentsInChildren<GazeSelectionTarget>();
+                foreach (var target in targets)
+                {
+                    if (target.gameObject.name.Equals(buttonName))
+                    {
+                        target.SendMessage(highlight ? "Highlight" : "RemoveHighlight");
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void SendHandleButtonHighlight(string buttonName, bool highlight)
+        {
+            if (IsHoloLensUser)
+            {
+                Debug.Log(string.Format("SendHandleButtonHighlight({0}, {1})", buttonName, highlight.ToString()));
+                NetworkOutMessage msg = CreateMessage(TestMessageID.HandleButtonHighlight);
+                msg.Write(new XString(buttonName));
+                msg.Write((byte)(highlight ? 1 : 0));
+                serverConnection.Broadcast(msg);
             }
         }
 
