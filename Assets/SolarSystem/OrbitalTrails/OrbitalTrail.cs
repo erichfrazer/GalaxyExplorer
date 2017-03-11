@@ -1,6 +1,7 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using GalaxyExplorer.SpectatorView;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -26,7 +27,16 @@ public class OrbitalTrail : MonoBehaviour
             {
                 if (owner)
                 {
+#if UNITY_EDITOR
+                    if (GE_SpectatorViewManager.SpectatorViewEnabled)
+                    {
+                        Graphics.SetRenderTarget(SpectatorView.ShaderManager.Instance.renderTexture);
+                        owner.RenderOrbits();
+                        Graphics.SetRenderTarget(null);
+                    }
+#else
                     owner.RenderOrbits();
+#endif
                 }
             }
 
@@ -58,6 +68,14 @@ public class OrbitalTrail : MonoBehaviour
             public uint orbitStartIndex;
             public uint orbitEntryCount;
             public uint orbitIndex;
+        }
+
+        private bool runningInEditor = false;
+        private void Awake()
+        {
+#if UNITY_EDITOR
+            runningInEditor = true;
+#endif
         }
 
         public static OrbitsRenderer GetOrCreate(Transform world)
@@ -206,7 +224,14 @@ public class OrbitalTrail : MonoBehaviour
 
             if (!cameraProxy && Camera.main)
             {
-                cameraProxy = Camera.main.gameObject.AddComponent<OrbitsRendererCameraProxy>();
+                if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+                {
+                    cameraProxy = SpectatorView.HolographicCameraManager.Instance.gameObject.AddComponent<OrbitsRendererCameraProxy>();
+                }
+                else
+                {
+                    cameraProxy = Camera.main.gameObject.AddComponent<OrbitsRendererCameraProxy>();
+                }
                 cameraProxy.owner = this;
             }
         }

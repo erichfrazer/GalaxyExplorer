@@ -1,6 +1,7 @@
 ﻿// Copyright Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using GalaxyExplorer.SpectatorView;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -14,8 +15,17 @@ public class RenderProxy : MonoBehaviour
     {
         if (owner)
         {
+#if UNITY_EDITOR
+            if (GE_SpectatorViewManager.SpectatorViewEnabled)
+            {
+                Graphics.SetRenderTarget(SpectatorView.ShaderManager.Instance.renderTexture);
+                owner.Render(isEditor: false);
+                Graphics.SetRenderTarget(null);
+            }
+#else
             wasValid = true;
             owner.Render(isEditor: false);
+#endif
         }
     }
 
@@ -101,6 +111,13 @@ public class DrawStars : MonoBehaviour
 
     private Mesh cubeMeshProxy;
 
+    private bool runningInEditor = false;
+    private void Awake()
+    {
+#if UNITY_EDITOR
+        runningInEditor = true;
+#endif
+    }
     private IEnumerator Start()
     {
         while (!Camera.main)
@@ -108,7 +125,15 @@ public class DrawStars : MonoBehaviour
             yield return null;
         }
 
-        var renderProxy = Camera.main.gameObject.AddComponent<RenderProxy>();
+        RenderProxy renderProxy = null;
+        if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
+        {
+            renderProxy =  SpectatorView.HolographicCameraManager.Instance.gameObject.AddComponent<RenderProxy>();
+        }
+        else
+        {
+            renderProxy = Camera.main.gameObject.AddComponent<RenderProxy>();
+        }
         renderProxy.owner = this;
 
         // The Tesseract doesn't play well with the galaxy, so we kill it
