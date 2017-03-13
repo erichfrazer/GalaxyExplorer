@@ -201,10 +201,12 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
+#if UNITY_EDITOR
         public RenderTexture RenderTexture
         {
             get { return ShaderManager.Instance.renderTexture; }
         }
+#endif
 
         public Transform AnchorTransform
         {
