@@ -28,7 +28,8 @@ public class OrbitalTrail : MonoBehaviour
                 if (owner)
                 {
 #if UNITY_EDITOR
-                    if (GE_SpectatorViewManager.SpectatorViewEnabled)
+                    if (GE_SpectatorViewManager.SpectatorViewEnabled &&
+                        gameObject == GE_SpectatorViewManager.Instance.SpectatorViewCamera.gameObject)
                     {
                         RenderTexture renderTex = RenderTexture.active;
                         Graphics.SetRenderTarget(GE_SpectatorViewManager.Instance.RenderTexture);

@@ -143,7 +143,6 @@ namespace GalaxyExplorer.SpectatorView
                             break;
                         }
                     }
-                    Debug.Log(string.Format("Editor User: {0}", (hcmInstance.editorUser == null) ? "NULL" : hcmInstance.editorUser.GetName().ToString()));
                     yield return new WaitForSeconds(1);
                 }
 
@@ -263,7 +262,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnAdvanceIntroduction");
+                //Debug.Log("OnAdvanceIntroduction");
                 InputRouter.Instance.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
             }
         }
@@ -272,7 +271,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendAdvanceIntroduction");
+                //Debug.Log("SendAdvanceIntroduction");
                 // due to timing issues, whe might need to eventually send the
                 // current Introduction Flow state
                 SendBasicStateChangeMessage(TestMessageID.AdvanceIntroduction);
@@ -284,7 +283,7 @@ namespace GalaxyExplorer.SpectatorView
             long messageSender = msg.ReadInt64();
             if (messageSender != LocalUserId)
             {
-                Debug.Log(string.Format("OnAnchorLocated for user {0}", messageSender));
+                Debug.LogFormat("OnAnchorLocated for user {0}", messageSender);
                 LocatedAnchors[messageSender] = true;
             }
         }
@@ -300,7 +299,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnContentPlaced");
+                //Debug.Log("OnContentPlaced");
                 PlacementControl pc = TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>();
                 if (pc)
                 {
@@ -313,7 +312,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("OnContentPlaced");
+                //Debug.Log("OnContentPlaced");
                 // send the final position of the volume
                 TransformUpdateFlags flags = TransformUpdateFlags.Position | TransformUpdateFlags.Rotation;
                 SendUpdateTransform(TransformToUpdate.Volume, flags);
@@ -327,7 +326,7 @@ namespace GalaxyExplorer.SpectatorView
             {
                 string buttonName = msg.ReadString().ToString();
                 bool highlight = msg.ReadByte() == 1;
-                Debug.Log(string.Format("OnHandleButtonHighlight for {0}: {1}", buttonName, highlight));
+                //Debug.LogFormat("OnHandleButtonHighlight for {0}: {1}", buttonName, highlight);
                 GazeSelectionTarget[] targets = ToolManager.Instance.GetComponentsInChildren<GazeSelectionTarget>();
                 foreach (var target in targets)
                 {
@@ -344,7 +343,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log(string.Format("SendHandleButtonHighlight({0}, {1})", buttonName, highlight.ToString()));
+                //Debug.LogFormat("SendHandleButtonHighlight({0}, {1})", buttonName, highlight.ToString());
                 NetworkOutMessage msg = CreateMessage(TestMessageID.HandleButtonHighlight);
                 msg.Write(new XString(buttonName));
                 msg.Write((byte)(highlight ? 1 : 0));
@@ -356,7 +355,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnHideAllCards");
+                //Debug.Log("OnHideAllCards");
                 CardPOIManager.Instance.HideAllCards();
             }
         }
@@ -365,14 +364,14 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendHideAllCards");
+                //Debug.Log("SendHideAllCards");
                 SendBasicStateChangeMessage(TestMessageID.HideAllCards);
             }
         }
 
         private void OnIntroductionEarthPlaced(NetworkInMessage msg)
         {
-            Debug.Log("OnEarthPlaced");
+            //Debug.Log("OnIntroductionEarthPlaced");
             ToolManager.Instance.UnlockTools();
             Cursor.Instance.ClearToolState();
         }
@@ -381,7 +380,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendIntroductionEarthPlaced");
+                //Debug.Log("SendIntroductionEarthPlaced");
                 SendBasicStateChangeMessage(TestMessageID.IntroductionEarthPlaced);
             }
         }
@@ -390,7 +389,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnMoveCube");
+                //Debug.Log("OnMoveCube");
                 ToolManager.Instance.LockTools();
                 TransitionManager.Instance.ViewVolume.GetComponentInChildren<PlacementControl>().TogglePinnedState();
             }
@@ -400,7 +399,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendMoveCube");
+                //Debug.Log("SendMoveCube");
                 SendBasicStateChangeMessage(TestMessageID.MoveCube);
             }
         }
@@ -410,7 +409,7 @@ namespace GalaxyExplorer.SpectatorView
             if (msg.ReadInt64() != LocalUserId)
             {
                 string descriptionName = msg.ReadString().ToString();
-                Debug.Log(string.Format("OnPointOfInterestAnimateDescription for {0}", descriptionName));
+                //Debug.LogFormat("OnPointOfInterestAnimateDescription for {0}", descriptionName);
                 string property = msg.ReadString().ToString();
                 bool value = msg.ReadByte() == 1;
 
@@ -430,7 +429,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log(string.Format("SendPointOfInterestAnimateDescription({0}, {1})", descriptionName, value.ToString()));
+                //Debug.LogFormat("SendPointOfInterestAnimateDescription({0}, {1})", descriptionName, value.ToString());
                 NetworkOutMessage msg = CreateMessage(TestMessageID.PointOfInterestAnimateDescription);
                 msg.Write(new XString(descriptionName));
                 msg.Write(new XString(property));
@@ -444,7 +443,7 @@ namespace GalaxyExplorer.SpectatorView
             if (msg.ReadInt64() != LocalUserId)
             {
                 string poiName = msg.ReadString().ToString();
-                Debug.Log(string.Format("OnPointOfInterestCardTapped: {0}", poiName));
+                //Debug.LogFormat("OnPointOfInterestCardTapped: {0}", poiName);
                 CardPointOfInterest[] cards = ViewLoader.Instance.GetComponentsInChildren<CardPointOfInterest>();
                 bool cardFound = false;
                 foreach (var card in cards)
@@ -460,7 +459,7 @@ namespace GalaxyExplorer.SpectatorView
                 }
                 if (!cardFound)
                 {
-                    Debug.Log(string.Format("### Unable to find POI {0}", poiName));
+                    Debug.LogWarning(string.Format("### Unable to find POI {0}", poiName));
                 }
             }
         }
@@ -473,7 +472,7 @@ namespace GalaxyExplorer.SpectatorView
                 var cardParentParent = cardParent.gameObject.transform.parent;
                 var poiName = cardParentParent.name;
 
-                Debug.Log(string.Format("SendPointOfInterestCardTapped({0})", poiName));
+                //Debug.LogFormat("SendPointOfInterestCardTapped({0})", poiName);
                 NetworkOutMessage msg = CreateMessage(TestMessageID.PointOfInterestCardTapped);
                 msg.Write(new XString(poiName));
                 serverConnection.Broadcast(msg, MessagePriority.High, MessageReliability.Reliable);
@@ -486,7 +485,7 @@ namespace GalaxyExplorer.SpectatorView
             {
                 bool isSelect = msg.ReadByte() == 1;
                 string nameToFind = msg.ReadString().ToString();
-                Debug.Log(string.Format("OnPointOfInterestGaze{1} for POI named {0}", nameToFind, isSelect?"Select":"Deselect"));
+                //Debug.LogFormat("OnPointOfInterestGaze{1} for POI named {0}", nameToFind, isSelect?"Select":"Deselect");
                 PointOfInterest[] points = ViewLoader.Instance.GetComponentsInChildren<PointOfInterest>();
                 foreach (PointOfInterest poi in points)
                 {
@@ -520,7 +519,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log(string.Format("SendPointOfInterestGazeSelect({0}, {1})", nameToFind, isSelect.ToString()));
+                //Debug.LogFormat("SendPointOfInterestGazeSelect({0}, {1})", nameToFind, isSelect.ToString());
                 var msg = CreateMessage(TestMessageID.PointOfInterestGazeSelect);
                 msg.Write((byte)(isSelect ? 1 : 0));
                 msg.Write(new XString(nameToFind));
@@ -532,7 +531,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnReset");
+                //Debug.Log("OnResetView");
                 TransitionManager.Instance.ResetView();
             }
         }
@@ -541,14 +540,14 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendResetView");
+                //Debug.Log("SendResetView");
                 SendBasicStateChangeMessage(TestMessageID.ResetView);
             }
         }
 
         private void OnSceneTransitionBackward(NetworkInMessage msg)
         {
-            Debug.Log("OnSceneTransitionBackward");
+            //Debug.Log("OnSceneTransitionBackward");
             ViewLoader.Instance.GoBack();
         }
 
@@ -556,7 +555,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendSceneTransitionBackward");
+                //Debug.Log("SendSceneTransitionBackward");
                 SendBasicStateChangeMessage(TestMessageID.SceneTransitionBackward);
             }
         }
@@ -567,7 +566,7 @@ namespace GalaxyExplorer.SpectatorView
             {
                 string sceneName = msg.ReadString().ToString();
                 string transitionSourceObjectName = msg.ReadString().ToString();
-                Debug.Log(string.Format("OnSceneTransitionForward: to {0}; from {1}", sceneName, transitionSourceObjectName));
+                //Debug.LogFormat("OnSceneTransitionForward: to {0}; from {1}", sceneName, transitionSourceObjectName);
 
                 // try to find an object with the provided name in the hierarchy
                 bool foundSourceObject = false;
@@ -582,7 +581,7 @@ namespace GalaxyExplorer.SpectatorView
                 }
                 if (!foundSourceObject)
                 {
-                    Debug.Log(string.Format("Could not find PointOfInterest {0} to transtion to scene {1}", transitionSourceObjectName, sceneName));
+                    Debug.LogWarning(string.Format("Could not find PointOfInterest {0} to transtion to scene {1}", transitionSourceObjectName, sceneName));
                 }
             }
         }
@@ -597,7 +596,7 @@ namespace GalaxyExplorer.SpectatorView
                     transitionSourceObjectName = transitionSourceObject.name;
                 }
 
-                Debug.Log(string.Format("SendSceneTransitionForward({0}, {1}", sceneName, transitionSourceObjectName));
+                //Debug.LogFormat("SendSceneTransitionForward({0}, {1}", sceneName, transitionSourceObjectName);
                 NetworkOutMessage msg = CreateMessage(TestMessageID.SceneTransitionForward);
                 msg.Write(new XString(sceneName));
                 msg.Write(new XString(transitionSourceObjectName));
@@ -610,7 +609,7 @@ namespace GalaxyExplorer.SpectatorView
             if (msg.ReadInt64() != LocalUserId)
             {
                 ToolType toolType = (ToolType)msg.ReadByte();
-                Debug.Log(string.Format("OnSelectToolbarButton: {0}", toolType.ToString()));
+                //Debug.LogFormat("OnSelectToolbarButton: {0}", toolType.ToString());
                 Tool[] tools = ToolManager.Instance.GetComponentsInChildren<Tool>();
                 foreach (Tool tool in tools)
                 {
@@ -626,7 +625,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log(string.Format("SendToolbarButton({0})", tool.ToString()));
+                //Debug.LogFormat("SendToolbarButton({0})", tool.ToString());
                 NetworkOutMessage msg = CreateMessage(TestMessageID.SelectToolbarButton);
                 msg.Write((byte)tool);
                 serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
@@ -654,9 +653,8 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnToggleSolarSystemOrbitalScale");
-                var Anchor = SV_ImportExportAnchorManager.Instance.gameObject;
-                OrbitScalePointOfInterest ospoi = Anchor.GetComponentInChildren<OrbitScalePointOfInterest>();
+                //Debug.Log("OnToggleSolarSystemOrbitalScale");
+                OrbitScalePointOfInterest ospoi = ViewLoader.Instance.GetComponentInChildren<OrbitScalePointOfInterest>();
                 ospoi.OnTapped(UnityEngine.VR.WSA.Input.InteractionSourceKind.Other, 1, new Ray());
             }
         }
@@ -665,7 +663,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendToggleSolarSystemOrbitScale");
+                //Debug.Log("SendToggleSolarSystemOrbitScale");
                 SendBasicStateChangeMessage(TestMessageID.ToggleSolarSystemOrbitScale);
             }
         }
@@ -674,7 +672,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (msg.ReadInt64() != LocalUserId)
             {
-                Debug.Log("OnToggleTools");
+                //Debug.Log("OnToggleTools");
                 ToolManager.Instance.ToggleTools();
             }
         }
@@ -683,7 +681,7 @@ namespace GalaxyExplorer.SpectatorView
         {
             if (IsHoloLensUser)
             {
-                Debug.Log("SendToggleTools");
+                //Debug.Log("SendToggleTools");
                 SendBasicStateChangeMessage(TestMessageID.ToggleTools);
             }
         }
