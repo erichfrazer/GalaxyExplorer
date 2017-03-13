@@ -9,7 +9,10 @@ public class ContentView : MonoBehaviour
 
     public void Awake()
     {
-        ToolManager.Instance.LargestZoom = MaxZoomSize;
+        if (ToolManager.Instance)
+        {
+            ToolManager.Instance.LargestZoom = MaxZoomSize;
+        }
     }
 
     public void WillUnload()

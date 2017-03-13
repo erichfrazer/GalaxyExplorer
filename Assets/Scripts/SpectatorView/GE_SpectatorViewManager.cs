@@ -188,6 +188,36 @@ namespace GalaxyExplorer.SpectatorView
             get { return HolographicCameraManager.Instance.IsHoloLensUser(); }
         }
 
+        private Camera svCamera = null;
+        public Camera SpectatorViewCamera
+        {
+            get
+            {
+                if (HolographicCameraManager.Instance && !svCamera)
+                {
+                    svCamera = HolographicCameraManager.Instance.gameObject.GetComponent<Camera>();
+                }
+                return svCamera;
+            }
+        }
+
+        public RenderTexture RenderTexture
+        {
+            get { return ShaderManager.Instance.renderTexture; }
+        }
+
+        public Transform AnchorTransform
+        {
+            get
+            {
+                if (SV_ImportExportAnchorManager.Instance)
+                {
+                    return SV_ImportExportAnchorManager.Instance.transform;
+                }
+                return null;
+            }
+        }
+
         public static bool TryGetHoloLensUserTransform(ref Transform transform)
         {
             if (!SpectatorViewEnabled || !HolographicCameraManager.Instance)

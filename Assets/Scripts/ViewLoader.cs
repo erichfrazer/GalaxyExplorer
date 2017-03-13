@@ -188,12 +188,17 @@ public class ViewLoader : GalaxyExplorer.HoloToolkit.Unity.Singleton<ViewLoader>
             }
 
             // Parent UI elements in CoreSystems to the SpectatorView's anchor object
-            var svAnchorInst = SpectatorView.SV_ImportExportAnchorManager.Instance;
-            if (svAnchorInst != null)
+            if (GE_SpectatorViewManager.Instance.AnchorTransform)
             {
-                transform.SetParent(svAnchorInst.transform, true);
-                IntroductionFlow.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
-                ToolManager.Instance.gameObject.transform.parent = svAnchorInst.gameObject.transform;
+                transform.SetParent(GE_SpectatorViewManager.Instance.AnchorTransform, true);
+                if (IntroductionFlow.Instance)
+                {
+                    IntroductionFlow.Instance.gameObject.transform.parent = GE_SpectatorViewManager.Instance.AnchorTransform;
+                }
+                if (ToolManager.Instance)
+                {
+                    ToolManager.Instance.gameObject.transform.parent = GE_SpectatorViewManager.Instance.AnchorTransform;
+                }
             }
 
             // Change the Cursor's forwardImpactOffset when in Spectator View

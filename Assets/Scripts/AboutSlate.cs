@@ -34,7 +34,7 @@ public class AboutSlate : GalaxyExplorer.HoloToolkit.Unity.Singleton<AboutSlate>
         if (GE_SpectatorViewManager.SpectatorViewEnabled)
         {
             Instance.gameObject.transform.parent = 
-                SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject.transform;
+                GE_SpectatorViewManager.Instance.AnchorTransform;
         }
     }
 

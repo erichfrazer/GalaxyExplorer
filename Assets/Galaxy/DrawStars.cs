@@ -16,16 +16,20 @@ public class RenderProxy : MonoBehaviour
         if (owner)
         {
 #if UNITY_EDITOR
-            if (GE_SpectatorViewManager.SpectatorViewEnabled)
+            if (GE_SpectatorViewManager.SpectatorViewEnabled &&
+                gameObject == GE_SpectatorViewManager.Instance.SpectatorViewCamera.gameObject)
             {
-                Graphics.SetRenderTarget(SpectatorView.ShaderManager.Instance.renderTexture);
-                owner.Render(isEditor: false);
-                Graphics.SetRenderTarget(null);
+                RenderTexture tex = RenderTexture.active;
+                Graphics.SetRenderTarget(GE_SpectatorViewManager.Instance.RenderTexture);
+                owner.Render(isEditor: false, renderForSpectatorView: true);
+                Graphics.SetRenderTarget(tex);
             }
-#else
-            wasValid = true;
-            owner.Render(isEditor: false);
 #endif
+            if (gameObject == Camera.main.gameObject)
+            {
+                wasValid = true;
+                owner.Render(isEditor: false);
+            }
         }
     }
 
@@ -128,12 +132,14 @@ public class DrawStars : MonoBehaviour
         RenderProxy renderProxy = null;
         if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
         {
-            renderProxy =  SpectatorView.HolographicCameraManager.Instance.gameObject.AddComponent<RenderProxy>();
+            while (!GE_SpectatorViewManager.Instance.SpectatorViewCamera)
+            {
+                yield return null;
+            }
+            renderProxy =  GE_SpectatorViewManager.Instance.SpectatorViewCamera.gameObject.AddComponent<RenderProxy>();
+            renderProxy.owner = this;
         }
-        else
-        {
-            renderProxy = Camera.main.gameObject.AddComponent<RenderProxy>();
-        }
+        renderProxy = Camera.main.gameObject.AddComponent<RenderProxy>();
         renderProxy.owner = this;
 
         // The Tesseract doesn't play well with the galaxy, so we kill it
@@ -200,7 +206,7 @@ public class DrawStars : MonoBehaviour
         }
     }
 
-    public void Render(bool isEditor)
+    public void Render(bool isEditor, bool renderForSpectatorView = false)
     {
         if (!enabled || !galaxy.gameObject.activeInHierarchy)
         {
@@ -214,8 +220,13 @@ public class DrawStars : MonoBehaviour
             RenderTexture.active = RenderTexturesBucket.Instance.downRez;
         }
 
-        var mainCam = Camera.main;
-        var mainCamTransform = mainCam.transform;
+        Camera mainCam = Camera.main;
+        Transform mainCamTransform = mainCam.transform;
+        if (renderForSpectatorView)
+        {
+            mainCam = GE_SpectatorViewManager.Instance.SpectatorViewCamera;
+            mainCamTransform = mainCam.transform;
+        }
 
         if (renderIntoDownscaledTarget)
         {
@@ -316,7 +327,15 @@ public class DrawStars : MonoBehaviour
                 }
                 else
                 {
-                    screenComposeMaterial.SetPass(1);
+                    if (GE_SpectatorViewManager.SpectatorViewEnabled && 
+                        renderForSpectatorView)
+                    {
+                        screenComposeMaterial.SetPass(3);
+                    }
+                    else
+                    {
+                        screenComposeMaterial.SetPass(1);
+                    }
                 }
 #else
                 screenComposeMaterial.SetPass(1);

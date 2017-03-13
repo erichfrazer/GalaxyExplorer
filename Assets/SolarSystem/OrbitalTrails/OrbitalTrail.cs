@@ -30,13 +30,13 @@ public class OrbitalTrail : MonoBehaviour
 #if UNITY_EDITOR
                     if (GE_SpectatorViewManager.SpectatorViewEnabled)
                     {
-                        Graphics.SetRenderTarget(SpectatorView.ShaderManager.Instance.renderTexture);
+                        RenderTexture renderTex = RenderTexture.active;
+                        Graphics.SetRenderTarget(GE_SpectatorViewManager.Instance.RenderTexture);
                         owner.RenderOrbits();
-                        Graphics.SetRenderTarget(null);
+                        Graphics.SetRenderTarget(renderTex);
                     }
-#else
-                    owner.RenderOrbits();
 #endif
+                    owner.RenderOrbits();
                 }
             }
 
@@ -226,12 +226,10 @@ public class OrbitalTrail : MonoBehaviour
             {
                 if (runningInEditor && GE_SpectatorViewManager.SpectatorViewEnabled)
                 {
-                    cameraProxy = SpectatorView.HolographicCameraManager.Instance.gameObject.AddComponent<OrbitsRendererCameraProxy>();
+                    cameraProxy = GE_SpectatorViewManager.Instance.SpectatorViewCamera.gameObject.AddComponent<OrbitsRendererCameraProxy>();
+                    cameraProxy.owner = this;
                 }
-                else
-                {
-                    cameraProxy = Camera.main.gameObject.AddComponent<OrbitsRendererCameraProxy>();
-                }
+                cameraProxy = Camera.main.gameObject.AddComponent<OrbitsRendererCameraProxy>();
                 cameraProxy.owner = this;
             }
         }

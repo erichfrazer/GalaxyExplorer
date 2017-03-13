@@ -91,7 +91,7 @@ public class WorldAnchorHandler : GalaxyExplorer.HoloToolkit.Unity.Singleton<Wor
     {
         // reparent our content to Spectator View's Anchor
         var viewVolume = TransitionManager.Instance.ViewVolume;
-        var newParent = SpectatorView.SV_ImportExportAnchorManager.Instance.gameObject;
+        var newParent = GE_SpectatorViewManager.Instance.AnchorTransform.gameObject;
         Debug.Log(string.Format("Attaching content {0} to {1}.", viewVolume.name, newParent.name));
         viewVolume.transform.SetParent(newParent.transform, true);
     }
