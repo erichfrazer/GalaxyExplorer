@@ -39,8 +39,6 @@ namespace GalaxyExplorer.SpectatorView
             ContentPlaced,
             UpdateTransform,
             SelectToolbarButton,
-            UpdateCurrentContentLocalScale,
-            UpdateCurrentContentRotation,
             ToggleTools,
             ResetView,
             HandleButtonHighlight,
@@ -116,8 +114,6 @@ namespace GalaxyExplorer.SpectatorView
             MessageHandlers[TestMessageID.ContentPlaced] = OnContentPlaced;
             MessageHandlers[TestMessageID.UpdateTransform] = OnUpdateTransform;
             MessageHandlers[TestMessageID.SelectToolbarButton] = OnSelectToolbarButton;
-            MessageHandlers[TestMessageID.UpdateCurrentContentLocalScale] = OnUpdateCurrentContentLocalScale;
-            MessageHandlers[TestMessageID.UpdateCurrentContentRotation] = OnUpdateCurrentContentRotation;
             MessageHandlers[TestMessageID.ToggleTools] = OnToggleTools;
             MessageHandlers[TestMessageID.ResetView] = OnResetView;
             MessageHandlers[TestMessageID.HandleButtonHighlight] = OnHandleButtonHighlight;
@@ -686,48 +682,6 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
-        private void OnUpdateCurrentContentRotation(NetworkInMessage msg)
-        {
-            if (msg.ReadInt64() != LocalUserId)
-            {
-                //Debug.Log("OnUpdateCurrentContentRotation");
-                var newRot = msg.ReadQuaternion();
-                ViewLoader.Instance.GetCurrentContent().transform.rotation = newRot;
-            }
-        }
-
-        public void SendUpdateCurrentContentRotation(Quaternion rot)
-        {
-            if (IsHoloLensUser)
-            {
-                //Debug.Log("SendUpdateCurrentContentRotation");
-                NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCurrentContentRotation);
-                msg.Write(rot);
-                serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
-            }
-        }
-
-        private void OnUpdateCurrentContentLocalScale(NetworkInMessage msg)
-        {
-            if (msg.ReadInt64() != LocalUserId)
-            {
-                //Debug.Log("OnUpdateCurrentContentLocalScale");
-                var newScale = msg.ReadVector3();
-                ViewLoader.Instance.GetCurrentContent().transform.localScale = newScale;
-            }
-        }
-
-        public void SendUpdateCurrentContentLocalScale(Vector3 scale)
-        {
-            if (IsHoloLensUser)
-            {
-                //Debug.Log("SendUpdateCurrentContentLocalScale");
-                NetworkOutMessage msg = CreateMessage(TestMessageID.UpdateCurrentContentLocalScale);
-                msg.Write(scale);
-                serverConnection.Broadcast(msg, MessagePriority.Medium, MessageReliability.Reliable);
-            }
-        }
-
         public enum TransformUpdateFlags : byte
         {
             Position = 1,
@@ -741,7 +695,8 @@ namespace GalaxyExplorer.SpectatorView
         {
             Volume,
             Cursor,
-            Tools
+            Tools,
+            Content
         }
 
         private Transform GetRelativeTransform(TransformToUpdate transEnum)
@@ -758,6 +713,19 @@ namespace GalaxyExplorer.SpectatorView
             }
         }
 
+        private Transform GetTransformToUpdate(TransformToUpdate transEnum)
+        {
+            Transform trans = null;
+            switch (transEnum)
+            {
+                case TransformToUpdate.Cursor: trans = Cursor.Instance.transform; break;
+                case TransformToUpdate.Volume: trans = TransitionManager.Instance.ViewVolume.transform; break;
+                case TransformToUpdate.Tools: trans = ToolManager.Instance.transform; break;
+                case TransformToUpdate.Content: trans = ViewLoader.Instance.GetCurrentContent().transform; break;
+            }
+            return trans;
+        }
+
         private void OnUpdateTransform(NetworkInMessage msg)
         {
             if (msg.ReadInt64() != LocalUserId)
@@ -765,15 +733,9 @@ namespace GalaxyExplorer.SpectatorView
                 //Debug.Log("OnUpdateTransform");
 
                 TransformToUpdate transEnum = (TransformToUpdate)msg.ReadByte();
-                Transform transform = null;
-                switch (transEnum)
-                {
-                    case TransformToUpdate.Cursor: transform = Cursor.Instance.transform; break;
-                    case TransformToUpdate.Volume: transform = TransitionManager.Instance.ViewVolume.transform; break;
-                    case TransformToUpdate.Tools: transform = ToolManager.Instance.transform; break;
-                }
-
                 TransformUpdateFlags flags = (TransformUpdateFlags)msg.ReadByte();
+
+                Transform transform = GetTransformToUpdate(transEnum);
 
                 if ((flags & TransformUpdateFlags.Position) != 0)
                 {
@@ -808,13 +770,7 @@ namespace GalaxyExplorer.SpectatorView
                 msg.Write((byte)transEnum);
                 msg.Write((byte)flags);
 
-                Transform transform = null;
-                switch (transEnum)
-                {
-                    case TransformToUpdate.Cursor: transform = Cursor.Instance.transform; break;
-                    case TransformToUpdate.Volume: transform = TransitionManager.Instance.ViewVolume.transform; break;
-                    case TransformToUpdate.Tools: transform = ToolManager.Instance.transform; break;
-                }
+                Transform transform = GetTransformToUpdate(transEnum);
 
                 if ((flags & TransformUpdateFlags.Position) != 0)
                 {
