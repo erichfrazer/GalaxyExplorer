@@ -8,6 +8,7 @@ UnityGenerated/
 Library/
 Packages/
 Assets/AssetStoreTools*
+UnityPackageManager/
 project.json
 project.lock.json
 
